@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "Luger.Api.Features.Logging";
+
+enum LogLevel {
+  Debug = 0;
+  Verbose = 1;
+  Info = 2;
+  Warning = 3;
+  Error = 4;
+  Critical = 5;
+  Fatal = 6;
+}
+
+message StoredLog {
+  google.protobuf.Timestamp timestamp = 1;
+  LogLevel level = 2; 
+  string message = 3;
+  map<string, string> labels = 4;
+}
