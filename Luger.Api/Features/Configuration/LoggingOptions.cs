@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Luger.Api.Features.Logging
+namespace Luger.Api.Features.Configuration
 {
     public class LoggingOptions
     {

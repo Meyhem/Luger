@@ -1,8 +1,8 @@
 ﻿using Google.Protobuf;
 using Luger.Api.Common;
+using Luger.Api.Features.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,15 +14,18 @@ namespace Luger.Api.Features.Logging
 
     public class LogWriterHostedService : BackgroundService
     {
-        private readonly IOptions<LoggingOptions> options;
+        private readonly IConfigurationProvider config;
         private readonly ILogQueue queue;
         private readonly ILogRepository repository;
         private readonly ILogger<LogWriterHostedService> logger;
         private Dictionary<string, StoredLogOutputStream> bucketStreamMap;
 
-        public LogWriterHostedService(IOptions<LoggingOptions> options, ILogQueue queue, ILogRepository repository, ILogger<LogWriterHostedService> logger)
+        public LogWriterHostedService(IConfigurationProvider config, 
+            ILogQueue queue, 
+            ILogRepository repository, 
+            ILogger<LogWriterHostedService> logger)
         {
-            this.options = options;
+            this.config = config;
             this.queue = queue;
             this.repository = repository;
             this.logger = logger;
@@ -33,6 +36,7 @@ namespace Luger.Api.Features.Logging
         {
             try
             {
+                logger.LogInformation("Starting queue processing");
                 while (await queue.OutputAvailableAsync(cancellationToken))
                 {
                     try
@@ -40,33 +44,36 @@ namespace Luger.Api.Features.Logging
                         var log = await queue.ReceiveAsync(cancellationToken);
                         var logStream = GetLogStream(log.Bucket, log.Timestamp);
 
-                        var normalizedLabels = log.Labels
-                            .Select(kvp => KeyValuePair.Create(
-                                Utils.NormalizeLabelName(kvp.Key),
-                                kvp.Value
-                            ))
-                            .GroupBy(g => g.Key)
-                            .Select(g => g.First());
-
                         var storedLog = new StoredLog
                         {
                             Timestamp = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTimeOffset(log.Timestamp),
                             Level = log.Level,
                             Message = log.Message
                         };
-
-                        storedLog.Labels.Add(new Dictionary<string, string>(normalizedLabels));
+                        
+                        storedLog.Labels.Add(Normalization.NormalizeLogLabels(log.Labels));
 
                         logStream.WriteLog(storedLog);
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError("Failed to write log", ex);
+                        logger.LogError("Log processing failed", ex);
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                logger.LogError("Queue processing failed", ex);
+                throw;
+            }
             finally
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    logger.LogInformation("Cancellation requested");
+                }
+
+                logger.LogInformation("Terminating queue processing");
                 foreach (var (_, timedStream) in bucketStreamMap)
                 {
                     timedStream.Dispose();
@@ -84,7 +91,7 @@ namespace Luger.Api.Features.Logging
             }
             var timedStream = bucketStreamMap[bucket];
 
-            if (timedStream.CreatedAt.Add(GetBucketRotationFrequency(bucket)) < rotationBaseTime)
+            if (timedStream.CreatedAt.Add(config.GetBucketRotationFrequency(bucket)) < rotationBaseTime)
             {
                 timedStream.Dispose();
                 timedStream = new StoredLogOutputStream(repository.OpenLogStream(bucket));
@@ -94,14 +101,5 @@ namespace Luger.Api.Features.Logging
 
             return timedStream;
         }
-
-        private TimeSpan GetBucketRotationFrequency(string bucket)
-        {
-
-            var bucketConfig = options.Value?.Buckets?.Find(b => Utils.NormalizeBucketName(b.Name) == bucket);
-            return bucketConfig?.Rotation ?? TimeSpan.FromDays(1);
-        }
-
-
     }
 }

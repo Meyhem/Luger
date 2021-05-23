@@ -14,7 +14,7 @@ namespace Luger.Api.Features.Logging
             Level = req.Level ?? LogLevel.Error;
             Message = req.Message ?? string.Empty;
             Labels = req.Labels ?? new();
-            Bucket = Utils.NormalizeBucketName(bucket);
+            Bucket = Normalization.NormalizeBucketName(bucket);
         }
 
         public DateTimeOffset Timestamp { get; private set; }

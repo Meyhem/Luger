@@ -4,6 +4,7 @@ using Luger.Api.Features.Logging;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Luger.Api.Api
 {
@@ -18,15 +19,14 @@ namespace Luger.Api.Api
         }
 
         [HttpPost("{bucketName}")]
-        public IActionResult CollectAsync([FromBody]IEnumerable<AddLogRequest> logRequests, [FromRoute]string bucketName)
+        public async Task<IActionResult> CollectAsync([FromBody]IEnumerable<AddLogRequest> logRequests, [FromRoute]string bucketName)
         {
-            var x = ModelState;
             logRequests ??= Enumerable.Empty<AddLogRequest>();
-            bucketName = Utils.NormalizeBucketName(bucketName);
+            bucketName = Normalization.NormalizeBucketName(bucketName);
 
             var logs = logRequests.Select(lr => new LogRecord(bucketName, lr));
 
-            service.AddLogs(logs);
+            await service.AddLogs(logs);
 
             return NoContent();
         }

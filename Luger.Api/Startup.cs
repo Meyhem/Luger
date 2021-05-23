@@ -1,3 +1,4 @@
+using Luger.Api.Features.Configuration;
 using Luger.Api.Features.Logging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -14,6 +15,7 @@ namespace Luger.Api
             
             services.AddSwaggerGen();
 
+            services.AddTransient<IConfigurationProvider, ConfigurationProvider>();
             services.AddTransient<ILogRepository, LogRepository>();
             services.AddTransient<ILogService, LogService>();
             services.AddSingleton<ILogQueue, LogQueue>();
