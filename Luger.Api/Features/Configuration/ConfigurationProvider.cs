@@ -13,11 +13,19 @@ namespace Luger.Api.Features.Configuration
             this.options = options;
         }
 
-        public TimeSpan GetBucketRotationFrequency(string bucket)
+        public BucketOptions? GetBucketConfiguration(string bucket)
         {
             bucket = Normalization.NormalizeBucketName(bucket);
 
-            var bucketConfig = options.Value?.Buckets?.Find(b => Normalization.NormalizeBucketName(b.Name) == bucket);
+            return options.Value?
+                .Buckets?
+                .Find(b => Normalization.NormalizeBucketName(b.Name) == bucket);
+        }
+
+        public TimeSpan GetBucketRotationFrequency(string bucket)
+        {
+            var bucketConfig = GetBucketConfiguration(bucket);
+
             return bucketConfig?.Rotation ?? TimeSpan.FromDays(1);
         }
     }
