@@ -29,11 +29,6 @@ namespace Luger.Api.Features.Logging
             log.WriteDelimitedTo(stream);
         }
 
-        public void Flush()
-        {
-            stream.Flush();
-        }
-
         public void Dispose()
         {
             flushTimer.Stop();

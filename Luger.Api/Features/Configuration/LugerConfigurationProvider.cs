@@ -4,11 +4,11 @@ using System;
 
 namespace Luger.Api.Features.Configuration
 {
-    public class ConfigurationProvider : IConfigurationProvider
+    public class LugerConfigurationProvider : ILugerConfigurationProvider
     {
         private readonly IOptions<LoggingOptions> options;
 
-        public ConfigurationProvider(IOptions<LoggingOptions> options)
+        public LugerConfigurationProvider(IOptions<LoggingOptions> options)
         {
             this.options = options;
         }

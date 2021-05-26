@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Luger.Api.Api.Models
 {
-    public class AddLogRequest
+    public class RequestAddLog
     {
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public LogLevel? Level { get; set; }

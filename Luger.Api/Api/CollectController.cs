@@ -13,18 +13,21 @@ namespace Luger.Api.Api
     public class CollectController : Controller
     {
         private readonly ILogService service;
-        private readonly IConfigurationProvider configurationProvider;
+        private readonly ILugerConfigurationProvider configurationProvider;
 
-        public CollectController(ILogService service, IConfigurationProvider configurationProvider)
+        public CollectController(ILogService service, ILugerConfigurationProvider configurationProvider)
         {
             this.service = service;
             this.configurationProvider = configurationProvider;
         }
 
         [HttpPost("{bucketName}")]
-        public async Task<IActionResult> CollectAsync([FromBody]IEnumerable<AddLogRequest> logRequests, [FromRoute]string bucketName)
+        [Consumes("application/json")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> CollectAsync([FromBody]IEnumerable<RequestAddLog> logRequests, [FromRoute]string bucketName)
         {
-            logRequests ??= Enumerable.Empty<AddLogRequest>();
+            logRequests ??= Enumerable.Empty<RequestAddLog>();
             bucketName = Normalization.NormalizeBucketName(bucketName);
 
             var config = configurationProvider.GetBucketConfiguration(bucketName);

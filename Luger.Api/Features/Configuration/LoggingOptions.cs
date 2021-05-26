@@ -11,7 +11,7 @@ namespace Luger.Api.Features.Configuration
     public class BucketOptions
     {
         public string Name { get; set; }
-        public TimeSpan Rotation { get; set; }
-        public TimeSpan Retention { get; set; }
+        public TimeSpan? Rotation { get; set; }
+        public TimeSpan? Retention { get; set; }
     }
 }

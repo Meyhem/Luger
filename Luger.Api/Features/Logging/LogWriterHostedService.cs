@@ -14,13 +14,13 @@ namespace Luger.Api.Features.Logging
 
     public class LogWriterHostedService : BackgroundService
     {
-        private readonly IConfigurationProvider config;
+        private readonly ILugerConfigurationProvider config;
         private readonly ILogQueue queue;
         private readonly ILogRepository repository;
         private readonly ILogger<LogWriterHostedService> logger;
         private Dictionary<string, StoredLogOutputStream> bucketStreamMap;
 
-        public LogWriterHostedService(IConfigurationProvider config, 
+        public LogWriterHostedService(ILugerConfigurationProvider config, 
             ILogQueue queue, 
             ILogRepository repository, 
             ILogger<LogWriterHostedService> logger)
@@ -87,14 +87,14 @@ namespace Luger.Api.Features.Logging
         {
             if (!bucketStreamMap.ContainsKey(bucket))
             {
-                bucketStreamMap.Add(bucket, new StoredLogOutputStream(repository.OpenLogStream(bucket)));
+                bucketStreamMap.Add(bucket, new StoredLogOutputStream(repository.OpenLogOutputStream(bucket)));
             }
             var timedStream = bucketStreamMap[bucket];
 
             if (timedStream.CreatedAt.Add(config.GetBucketRotationFrequency(bucket)) < rotationBaseTime)
             {
                 timedStream.Dispose();
-                timedStream = new StoredLogOutputStream(repository.OpenLogStream(bucket));
+                timedStream = new StoredLogOutputStream(repository.OpenLogOutputStream(bucket));
                 
                 bucketStreamMap[bucket] = timedStream;
             }
