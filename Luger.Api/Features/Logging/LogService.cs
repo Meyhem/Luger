@@ -57,10 +57,7 @@ namespace Luger.Api.Features.Logging
                         break;
                     }
                 }
-                
-
             }
-
 
             return result;
         }
