@@ -1,42 +1,34 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 
 namespace Luger.Api.Features.Logging
 {
     public class LogQueue : ILogQueue
     {
-        private readonly BufferBlock<LogRecord> queue;
+        private readonly Channel<LogRecord> queue;
 
         public LogQueue()
         {
-            queue = new(new()
-            {
-                EnsureOrdered = true
-            });
+            queue = Channel.CreateBounded<LogRecord>(65535);
         }
 
-        public async Task<bool> OutputAvailableAsync(CancellationToken ct)
+        public async Task<LogRecord> Get(CancellationToken ct)
         {
-            return await queue.OutputAvailableAsync(ct);
+            return await queue.Reader.ReadAsync(ct);
         }
 
-        public async Task<LogRecord> ReceiveAsync(CancellationToken ct)
+        public async Task Put(LogRecord log)
         {
-            return await queue.ReceiveAsync(ct);
+            await queue.Writer.WriteAsync(log);
         }
 
-        public async Task SendAsync(LogRecord log)
-        {
-            await queue.SendAsync(log);
-        }
-
-        public async Task SendAllAsync(IEnumerable<LogRecord> logs)
+        public async Task PutMany(IEnumerable<LogRecord> logs)
         {
             foreach (var log in logs)
             {
-                await queue.SendAsync(log);
+                await Put(log);
             }
         }
     }

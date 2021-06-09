@@ -19,7 +19,7 @@ namespace Luger.Api.Features.Logging
 
         public async Task AddLogs(IEnumerable<LogRecord> logs)
         {
-            await queue.SendAllAsync(logs);
+            await queue.PutMany(logs);
         }
 
         public async Task<IEnumerable<LogRecord>> SearchLogs(string bucket, DateTimeOffset from, DateTimeOffset to, CursorDto cursor)

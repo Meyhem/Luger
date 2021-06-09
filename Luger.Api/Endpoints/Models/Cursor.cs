@@ -1,10 +1,10 @@
 ﻿using Luger.Api.Features.Logging.Dto;
 
-namespace Luger.Api.Api.Models
+namespace Luger.Api.Endpoints.Models
 {
     public class Cursor
     {
-        public string? Chunk { get; set; } 
+        public string? Chunk { get; set; }
 
         public long Offset { get; set; }
 

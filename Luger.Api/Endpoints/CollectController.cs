@@ -1,5 +1,5 @@
-﻿using Luger.Api.Api.Models;
-using Luger.Api.Common;
+﻿using Luger.Api.Common;
+using Luger.Api.Endpoints.Models;
 using Luger.Api.Features.Configuration;
 using Luger.Api.Features.Logging;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Luger.Api.Api
+namespace Luger.Api.Endpoints
 {
     [Route("[controller]")]
     public class CollectController : Controller
@@ -25,7 +25,7 @@ namespace Luger.Api.Api
         [Consumes("application/json")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> CollectAsync([FromBody]IEnumerable<RequestAddLog> logRequests, [FromRoute]string bucketName)
+        public async Task<IActionResult> CollectAsync([FromBody] IEnumerable<RequestAddLog> logRequests, [FromRoute] string bucketName)
         {
             logRequests ??= Enumerable.Empty<RequestAddLog>();
             bucketName = Normalization.NormalizeBucketName(bucketName);

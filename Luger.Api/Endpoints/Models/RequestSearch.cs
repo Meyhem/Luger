@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Luger.Api.Api.Models
+namespace Luger.Api.Endpoints.Models
 {
     public class RequestSearch
     {

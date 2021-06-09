@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 
 namespace Luger.Api.Features.Configuration
 {
@@ -6,5 +7,7 @@ namespace Luger.Api.Features.Configuration
     {
         BucketOptions? GetBucketConfiguration(string bucket);
         TimeSpan GetBucketRotationFrequency(string bucket);
+        byte[] GetIssuesSigningKey();
+        IConfigurationSection GetJwtBearerOptions();
     }
 }

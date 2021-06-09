@@ -5,13 +5,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Luger.Api.Features.Logging
 {
-
     public class LogWriterHostedService : BackgroundService
     {
         private readonly ILugerConfigurationProvider config;
@@ -37,11 +35,11 @@ namespace Luger.Api.Features.Logging
             try
             {
                 logger.LogInformation("Starting queue processing");
-                while (await queue.OutputAvailableAsync(cancellationToken))
+                while (!cancellationToken.IsCancellationRequested)
                 {
                     try
                     {
-                        var log = await queue.ReceiveAsync(cancellationToken);
+                        var log = await queue.Get(cancellationToken);
                         var logStream = GetLogStream(log.Bucket, log.Timestamp);
 
                         var storedLog = new StoredLog
@@ -85,6 +83,8 @@ namespace Luger.Api.Features.Logging
 
         private StoredLogOutputStream GetLogStream(string bucket, DateTimeOffset rotationBaseTime)
         {
+            bucket = Normalization.NormalizeBucketName(bucket);
+
             if (!bucketStreamMap.ContainsKey(bucket))
             {
                 bucketStreamMap.Add(bucket, new StoredLogOutputStream(repository.OpenLogOutputStream(bucket)));

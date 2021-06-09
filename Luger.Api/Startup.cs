@@ -1,10 +1,13 @@
 using Luger.Api.Features.Configuration;
 using Luger.Api.Features.Logging;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Luger.Api
 {
@@ -29,8 +32,22 @@ namespace Luger.Api
             services.AddSingleton<ILogQueue, LogQueue>();
 
             services.AddHostedService<LogWriterHostedService>();
+            services.AddAuthentication(auth => 
+            {
+                auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(jwt =>
+            {
+                var jwtSection = Configuration.GetSection("Jwt");
+                jwtSection.Bind(jwt);
+                
+                var key = jwtSection.GetValue<string>("TokenValidationParameters:IssuerSigningKey");
+                jwt.TokenValidationParameters.IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+            });
 
             services.Configure<LoggingOptions>(Configuration.GetSection("Luger"));
+            
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -48,6 +65,8 @@ namespace Luger.Api
 
             app.UseRouting();
             app.UseCors(c => c.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace Luger.Api.Api.Models
+namespace Luger.Api.Endpoints.Models
 {
     public class RequestAddLog
     {

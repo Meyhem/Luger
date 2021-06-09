@@ -1,5 +1,5 @@
-﻿using Luger.Api.Api.Models;
-using Luger.Api.Common;
+﻿using Luger.Api.Common;
+using Luger.Api.Endpoints.Models;
 using System;
 using System.Collections.Generic;
 

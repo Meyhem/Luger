@@ -1,4 +1,5 @@
-﻿using Luger.Api.Features.Logging;
+﻿using Luger.Api.Endpoints.Models;
+using Luger.Api.Features.Logging;
 using System.Collections.Generic;
 
 namespace Luger.Api.Api.Models
