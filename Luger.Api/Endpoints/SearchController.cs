@@ -1,6 +1,7 @@
 ﻿using Luger.Api.Api.Models;
 using Luger.Api.Endpoints.Models;
 using Luger.Api.Features.Logging;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -18,21 +19,12 @@ namespace Luger.Api.Endpoints
             this.logService = logService;
         }
 
-        [HttpPost("{bucketName}")]
-        public async Task<ResponseSearch> GetAsync([FromRoute] string bucketName, [FromBody] RequestSearch searchRequest)
+        [HttpPost("{bucket}")]
+        public async Task<ResponseSearch> GetAsync([FromRoute] string bucket, [FromBody] RequestSearch searchRequest)
         {
-            var str = DateTimeOffset.UtcNow.ToString("s");
-            var cursorDto = searchRequest.Cursor.ToDto();
-            var result = await logService.SearchLogs(bucketName,
-                searchRequest.From,
-                searchRequest.To,
-                cursorDto);
+            await logService.QueryLogs(bucket, DateTimeOffset.Now, DateTimeOffset.Now);
 
-            return new()
-            {
-                Logs = result,
-                Cursor = Cursor.FromDto(cursorDto)
-            };
+            return null;
         }
     }
 }

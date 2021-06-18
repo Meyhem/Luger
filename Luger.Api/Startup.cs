@@ -6,8 +6,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using System;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Luger.Api
 {
@@ -23,16 +29,12 @@ namespace Luger.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            
             services.AddSwaggerGen();
 
             services.AddTransient<ILugerConfigurationProvider, LugerConfigurationProvider>();
-            services.AddTransient<ILogRepository, LogRepository>();
             services.AddTransient<ILogService, LogService>();
-            services.AddSingleton<ILogQueue, LogQueue>();
 
-            services.AddHostedService<LogWriterHostedService>();
-            services.AddAuthentication(auth => 
+            services.AddAuthentication(auth =>
             {
                 auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -41,22 +43,38 @@ namespace Luger.Api
             {
                 var jwtSection = Configuration.GetSection("Jwt");
                 jwtSection.Bind(jwt);
-                
+
                 var key = jwtSection.GetValue<string>("TokenValidationParameters:IssuerSigningKey");
                 jwt.TokenValidationParameters.IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
             });
 
             services.Configure<LoggingOptions>(Configuration.GetSection("Luger"));
-            
+            services.Configure<MongoOptions>(Configuration.GetSection("Luger:Mongo"));
+
+            services.AddScoped(di =>
+            {
+                var opts = di.GetOptions<MongoOptions>();
+                return new MongoClient(opts.Url);
+            });
+
+            services.AddScoped(di =>
+            {
+                var mc = di.GetRequiredService<MongoClient>();
+                var opts = di.GetOptions<MongoOptions>();
+                
+                return mc.GetDatabase(opts.Database);
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            InitInfluxDb(app.ApplicationServices).Wait();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-            
+
             app.UseSwagger();
             app.UseSwaggerUI(config =>
             {
@@ -72,6 +90,28 @@ namespace Luger.Api
             {
                 endpoints.MapDefaultControllerRoute();
             });
+        }
+
+        private async Task InitInfluxDb(IServiceProvider di)
+        {
+            using var scope = di.CreateScope();
+            di = scope.ServiceProvider;
+
+            var db = di.GetRequiredService<IMongoDatabase>();
+            var opts = di.GetOptions<LoggingOptions>();
+            
+            foreach (var b in opts.Buckets)
+            {
+                var exists = (await db.ListCollectionsAsync(new ListCollectionsOptions
+                {
+                    Filter = new BsonDocument() { { "name", b.Id } }
+                }))
+                .Any();
+
+                if (exists) continue;
+
+                await db.CreateCollectionAsync(b.Id, new() { Capped =  b.MaxDocuments.HasValue || b.MaxSize.HasValue, MaxDocuments = b.MaxDocuments, MaxSize = b.MaxSize });
+            }
         }
     }
 }

@@ -13,32 +13,23 @@ namespace Luger.Api.Endpoints
     public class CollectController : Controller
     {
         private readonly ILogService service;
-        private readonly ILugerConfigurationProvider configurationProvider;
 
-        public CollectController(ILogService service, ILugerConfigurationProvider configurationProvider)
+        public CollectController(ILogService service)
         {
             this.service = service;
-            this.configurationProvider = configurationProvider;
         }
 
-        [HttpPost("{bucketName}")]
+        [HttpPost("{bucket}")]
         [Consumes("application/json")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> CollectAsync([FromBody] IEnumerable<RequestAddLog> logRequests, [FromRoute] string bucketName)
+        public async Task<IActionResult> CollectAsync([FromRoute] string bucket, [FromBody] IEnumerable<RequestAddLog> logRequests)
         {
             logRequests ??= Enumerable.Empty<RequestAddLog>();
-            bucketName = Normalization.NormalizeBucketName(bucketName);
 
-            var config = configurationProvider.GetBucketConfiguration(bucketName);
-            if (config is null)
-            {
-                return NotFound("Bucket not found");
-            }
+            var logs = logRequests.Select(lr => new LogRecord(lr));
 
-            var logs = logRequests.Select(lr => new LogRecord(bucketName, lr));
-
-            await service.AddLogs(logs);
+            await service.AddLogs(bucket, logs);
 
             return NoContent();
         }

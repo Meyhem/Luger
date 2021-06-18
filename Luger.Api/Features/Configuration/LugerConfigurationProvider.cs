@@ -24,14 +24,7 @@ namespace Luger.Api.Features.Configuration
 
             return options
                 .Buckets?
-                .Find(b => Normalization.NormalizeBucketName(b.Name) == bucket);
-        }
-
-        public TimeSpan GetBucketRotationFrequency(string bucket)
-        {
-            var bucketConfig = GetBucketConfiguration(bucket);
-
-            return bucketConfig?.Rotation ?? TimeSpan.FromDays(1);
+                .Find(b => Normalization.NormalizeBucketName(b.Id) == bucket);
         }
 
         public byte[] GetIssuesSigningKey()

@@ -7,6 +7,5 @@ namespace Luger.Api.Api.Models
     public class ResponseSearch
     {
         public IEnumerable<LogRecord> Logs { get; set; }
-        public Cursor Cursor { get; set; }
     }
 }
