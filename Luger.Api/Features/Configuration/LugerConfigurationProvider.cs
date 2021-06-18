@@ -15,18 +15,7 @@ namespace Luger.Api.Features.Configuration
         {
             this.config = config;
         }
-
-        public BucketOptions? GetBucketConfiguration(string bucket)
-        {
-            bucket = Normalization.NormalizeBucketName(bucket);
-
-            var options = config.GetValue<LoggingOptions>("Luger");
-
-            return options
-                .Buckets?
-                .Find(b => Normalization.NormalizeBucketName(b.Id) == bucket);
-        }
-
+       
         public byte[] GetIssuesSigningKey()
         {
             var key = config.GetSection("Jwt").GetValue<string>("TokenValidationParameters:IssuerSigningKey");
@@ -36,6 +25,11 @@ namespace Luger.Api.Features.Configuration
         public IConfigurationSection GetJwtBearerOptions()
         {
             return config.GetSection("Jwt");
+        }
+
+        public UserOptions[] GetUsers()
+        {
+            return config.GetValue<UserOptions[]>("Luger:Users");
         }
     }
 }

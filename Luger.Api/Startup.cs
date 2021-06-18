@@ -50,6 +50,7 @@ namespace Luger.Api
 
             services.Configure<LoggingOptions>(Configuration.GetSection("Luger"));
             services.Configure<MongoOptions>(Configuration.GetSection("Luger:Mongo"));
+            services.Configure<UserOptions[]>(Configuration.GetSection("Luger:Users"));
 
             services.AddScoped(di =>
             {

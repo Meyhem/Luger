@@ -16,6 +16,12 @@ namespace Luger.Api.Features.Configuration
         public int? MaxSize { get; set; }
     }
 
+    public class UserOptions
+    {
+        public string Id { get; set; }
+        public string[] Buckets { get; set; }
+    }
+
     public class MongoOptions
     {
         public string Url { get; set; }
