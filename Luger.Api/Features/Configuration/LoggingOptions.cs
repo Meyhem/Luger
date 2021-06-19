@@ -7,6 +7,7 @@ namespace Luger.Api.Features.Configuration
     {
         public List<BucketOptions> Buckets { get; set; } = default!;
         public MongoOptions Mongo { get; set; }
+        public UserOptions[] Users { get; set; }
     }
 
     public class BucketOptions

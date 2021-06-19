@@ -10,10 +10,13 @@ namespace Luger.Api.Features.Configuration
     public class LugerConfigurationProvider : ILugerConfigurationProvider
     {
         private readonly IConfiguration config;
+        private readonly IOptions<LoggingOptions> loggingOptions;
+        private readonly IOptions<UserOptions[]> userOptions;
 
-        public LugerConfigurationProvider(IConfiguration config)
+        public LugerConfigurationProvider(IConfiguration config, IOptions<LoggingOptions> loggingOptions)
         {
             this.config = config;
+            this.loggingOptions = loggingOptions;
         }
        
         public byte[] GetIssuesSigningKey()
@@ -29,7 +32,7 @@ namespace Luger.Api.Features.Configuration
 
         public UserOptions[] GetUsers()
         {
-            return config.GetValue<UserOptions[]>("Luger:Users");
+            return loggingOptions.Value.Users ?? Array.Empty<UserOptions>();
         }
     }
 }

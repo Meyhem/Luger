@@ -20,11 +20,11 @@ namespace Luger.Api.Endpoints
         }
 
         [HttpPost("{bucket}")]
-        public async Task<ResponseSearch> GetAsync([FromRoute] string bucket, [FromBody] RequestSearch searchRequest)
+        public async Task<ApiResponse<ResponseSearch>> GetAsync([FromRoute] string bucket, [FromBody] RequestSearch searchRequest)
         {
-            await logService.QueryLogs(bucket, DateTimeOffset.Now, DateTimeOffset.Now);
+            var logs = await logService.QueryLogs(bucket, searchRequest.From, searchRequest.To);
 
-            return null;
+            return ApiResponse.FromData(new ResponseSearch { Logs = logs });
         }
     }
 }

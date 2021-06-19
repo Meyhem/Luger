@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace Luger.Api.Endpoints
 {
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class UserController : LugerControllerBase
     {
         private readonly ILugerConfigurationProvider configurationProvider;

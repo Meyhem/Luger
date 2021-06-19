@@ -50,7 +50,6 @@ namespace Luger.Api
 
             services.Configure<LoggingOptions>(Configuration.GetSection("Luger"));
             services.Configure<MongoOptions>(Configuration.GetSection("Luger:Mongo"));
-            services.Configure<UserOptions[]>(Configuration.GetSection("Luger:Users"));
 
             services.AddScoped(di =>
             {
@@ -69,7 +68,7 @@ namespace Luger.Api
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            InitInfluxDb(app.ApplicationServices).Wait();
+            InitDb(app.ApplicationServices).Wait();
 
             if (env.IsDevelopment())
             {
@@ -86,33 +85,20 @@ namespace Luger.Api
             app.UseCors(c => c.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             app.UseAuthentication();
             app.UseAuthorization();
-
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
             });
         }
 
-        private async Task InitInfluxDb(IServiceProvider di)
+        private async Task InitDb(IServiceProvider di)
         {
             using var scope = di.CreateScope();
             di = scope.ServiceProvider;
 
-            var db = di.GetRequiredService<IMongoDatabase>();
-            var opts = di.GetOptions<LoggingOptions>();
-            
-            foreach (var b in opts.Buckets)
-            {
-                var exists = (await db.ListCollectionsAsync(new ListCollectionsOptions
-                {
-                    Filter = new BsonDocument() { { "name", b.Id } }
-                }))
-                .Any();
-
-                if (exists) continue;
-
-                await db.CreateCollectionAsync(b.Id, new() { Capped =  b.MaxDocuments.HasValue || b.MaxSize.HasValue, MaxDocuments = b.MaxDocuments, MaxSize = b.MaxSize });
-            }
+            var service = di.GetRequiredService<ILogService>();
+            await service.PrepareDatabase();
         }
     }
 }
