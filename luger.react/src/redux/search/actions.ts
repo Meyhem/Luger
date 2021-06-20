@@ -11,7 +11,8 @@ export const SearchActions = {
     }>
   >(),
   load: createAction('SEARCH/LOAD')<BucketScoped>(),
-  addLogs: createAction('SEARCH/SET_LOGS')<BucketScoped<{ logs: LogRecord[] }>>()
+  setLogs: createAction('SEARCH/SET_LOGS')<BucketScoped<{ logs: LogRecord[] }>>(),
+  resetLogs: createAction('SEARCH/RESET_LOGS')<BucketScoped>()
 }
 
 export type SearchActions = ActionType<typeof SearchActions>

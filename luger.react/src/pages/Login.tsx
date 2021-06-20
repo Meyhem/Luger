@@ -21,7 +21,7 @@ const LoginFormContainer = styled.div`
   display: flex;
 
   border: 1px solid ${themeColor('borderPrimary')};
-  border-radius: 5px;
+  border-radius: 4px;
   padding: ${themeSpace(3)};
 `
 

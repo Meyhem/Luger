@@ -1,8 +1,8 @@
-import React from 'react'
 import { Select as AntSelect } from 'antd'
 import { SelectProps as AntSelectProps, SelectValue } from 'antd/lib/select'
-import styled, { DefaultTheme } from 'styled-components/macro'
 import _ from 'lodash'
+import React from 'react'
+import styled, { DefaultTheme } from 'styled-components/macro'
 
 type SizeType = 'small' | 'middle' | 'large' | 'normal'
 

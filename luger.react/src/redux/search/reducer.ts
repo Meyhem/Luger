@@ -7,8 +7,9 @@ export const initialState: SearchState = {}
 
 export const bucketInitialState = {
   filter: {
-    from: dayjs().subtract(15, 'minutes').toDate(),
-    to: new Date(),
+    from: dayjs().subtract(15, 'minutes').toJSON(),
+    to: new Date().toJSON(),
+    levels: [],
     page: 0,
     pageSize: 20
   },
@@ -26,9 +27,13 @@ export const searchReducer: Reducer<SearchState, SearchActions> = (state = initi
       return setBucketState(state, action.payload.bucket, bucketInitialState)
     case getType(SearchActions.setFilter):
       return setBucketState(state, action.payload.bucket, { filter: action.payload.filter })
-    case getType(SearchActions.addLogs):
+    case getType(SearchActions.setLogs):
       return setBucketState(state, action.payload.bucket, {
-        logs: [...(state[action.payload.bucket]?.logs ?? []), ...action.payload.logs]
+        logs: action.payload.logs
+      })
+    case getType(SearchActions.resetLogs):
+      return setBucketState(state, action.payload.bucket, {
+        logs: []
       })
     default:
       return state

@@ -30,12 +30,22 @@ namespace Luger.Api.Features.Logging
             await col.InsertManyAsync(logs.Select(l => l.AsBsonDocument()));
         }
 
-        public async Task<IEnumerable<LogRecord>> QueryLogs(string bucket, DateTimeOffset from, DateTimeOffset to)
+        public async Task<IEnumerable<LogRecord>> QueryLogs(string bucket, 
+            DateTimeOffset from, 
+            DateTimeOffset to, 
+            string[] levels, 
+            int page, 
+            int pageSize)
         {
             var col = db.GetCollection<BsonDocument>(bucket);
-            var result = await col.FindAsync<BsonDocument>(Builders<BsonDocument>.Filter.Empty);
 
-            var ret = new List<LogRecord>(500);
+            var levelsFilter = levels.Any() ? Builders<BsonDocument>.Filter.AnyIn("level", levels) : Builders<BsonDocument>.Filter.Empty;
+
+            var composedFilters = Builders<BsonDocument>.Filter.Or(levelsFilter);
+            
+            var result = await col.FindAsync<BsonDocument>(composedFilters, new() { Limit = pageSize, Skip = page * pageSize });
+
+            var ret = new List<LogRecord>(pageSize);
 
             foreach (var r in result.ToEnumerable())
             {

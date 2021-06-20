@@ -8,6 +8,6 @@ namespace Luger.Api.Features.Logging
     {
         Task AddLogs(string bucket, IEnumerable<LogRecord> logs);
         Task PrepareDatabase();
-        Task<IEnumerable<LogRecord>> QueryLogs(string bucket, DateTimeOffset from, DateTimeOffset to);
+        Task<IEnumerable<LogRecord>> QueryLogs(string bucket, DateTimeOffset from, DateTimeOffset to, string[] levels, int page, int pageSize);
     }
 }

@@ -1,8 +1,9 @@
-import _ from 'lodash'
 import React, { FC, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router'
 import { Layout } from '../components/Layout'
+import { LogFilter } from '../components/LogFilter'
+import { LogTable } from '../components/LogTable'
 import { SearchActions } from '../redux/search'
 import { selectLogs } from '../redux/search/selectors'
 import { RootState } from '../redux/types'
@@ -17,14 +18,14 @@ export const BucketPage: FC<BucketProps> = ({}) => {
   const logs = useSelector((state: RootState) => selectLogs(state, bucket))
 
   useEffect(() => {
+    d(SearchActions.resetLogs({ bucket: bucket }))
     d(SearchActions.load({ bucket: bucket }))
   }, [bucket, d])
 
   return (
     <Layout heading={bucket}>
-      {_.map(logs, (l, i) => (
-        <div key={i}>{l.message}</div>
-      ))}
+      <LogFilter bucket={bucket} />
+      <LogTable records={logs} />
     </Layout>
   )
 }

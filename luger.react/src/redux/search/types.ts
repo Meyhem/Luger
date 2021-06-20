@@ -1,6 +1,7 @@
 export type Filter = {
-  from: Date
-  to: Date
+  levels: LogLevel[]
+  from: string
+  to: string
   page: number
   pageSize: number
 }

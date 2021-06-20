@@ -1,5 +1,6 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using Luger.Api.Features.Logging;
+using System;
+using System.Text.Json.Serialization;
 
 namespace Luger.Api.Endpoints.Models
 {
@@ -8,6 +9,9 @@ namespace Luger.Api.Endpoints.Models
         public DateTimeOffset From { get; set; }
         public DateTimeOffset To { get; set; }
 
+        public string[] Levels { get; set; }
+
         public int Page { get; set; }
+        public int PageSize { get; set; }
     }
 }
