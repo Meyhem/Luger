@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Luger.Api.Endpoints
 {
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class SearchController : Controller
     {
         private readonly ILogService logService;
