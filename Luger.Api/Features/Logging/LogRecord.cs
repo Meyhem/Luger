@@ -35,7 +35,7 @@ namespace Luger.Api.Features.Logging
             {
                 { "level", new BsonString(Level.ToString()) },
                 { "message", new BsonString(Message) },
-                { "timestamp", new BsonDateTime(Timestamp.UtcDateTime) }
+                { "timestamp", new BsonInt64(Timestamp.ToUnixTimeMilliseconds()) }
             };
 
             foreach (var label in Labels)
@@ -63,7 +63,7 @@ namespace Luger.Api.Features.Logging
 
             log.Level = level;
             log.Message = d.GetStringOrEmpty("message");
-            log.Timestamp = new DateTimeOffset(timestampValue.ToUniversalTime());
+            log.Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(timestampValue.AsInt64);
             log.Labels = new();
 
             foreach (var key in d)

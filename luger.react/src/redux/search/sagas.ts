@@ -35,13 +35,11 @@ export function* load({ payload }: ReturnType<typeof SearchActions.load>) {
   yield put(SearchActions.setLogs({ bucket: payload.bucket, logs: mapLogRecordResponse(response.data.data.logs) }))
 }
 
-export function* handleFilterChange({ payload }: ReturnType<typeof SearchActions.setFilter>) {
+export function* reload({ payload }: ReturnType<typeof SearchActions.setFilter>) {
+  yield put(SearchActions.setLogs({ bucket: payload.bucket, logs: [] }))
   yield load(SearchActions.load({ bucket: payload.bucket }))
 }
 
 export function* searchSaga() {
-  yield all([
-    takeLatest(getType(SearchActions.load), load),
-    takeLatest(getType(SearchActions.setFilter), handleFilterChange)
-  ])
+  yield all([takeLatest(getType(SearchActions.load), load), takeLatest(getType(SearchActions.setFilter), reload)])
 }

@@ -38,10 +38,12 @@ namespace Luger.Api.Features.Logging
             int pageSize)
         {
             var col = db.GetCollection<BsonDocument>(bucket);
-
+            
             var levelsFilter = levels.Any() ? Builders<BsonDocument>.Filter.AnyIn("level", levels) : Builders<BsonDocument>.Filter.Empty;
+            var fromFilter = Builders<BsonDocument>.Filter.Gte("timestamp", from.ToUnixTimeMilliseconds());
+            var toFilter = Builders<BsonDocument>.Filter.Lte("timestamp", to.ToUnixTimeMilliseconds());
 
-            var composedFilters = Builders<BsonDocument>.Filter.Or(levelsFilter);
+            var composedFilters = Builders<BsonDocument>.Filter.And(levelsFilter, fromFilter, toFilter);
             
             var result = await col.FindAsync<BsonDocument>(composedFilters, new() { Limit = pageSize, Skip = page * pageSize });
 

@@ -11,6 +11,7 @@ import { Button } from '../Button'
 import { DatePicker } from '../DatePicker'
 import { Flex } from '../FlexBox'
 import { FormControl } from '../FormControl'
+import { Input } from '../Input'
 import { Select } from '../Select'
 
 type LogFilterProps = {
@@ -26,13 +27,15 @@ const LogFilterContainer = styled.div`
 
 const Section = styled(Flex)`
   display: flex;
-  padding: 0 16px;
+  padding: 8px 16px 0 16px;
 `
 
 type FilterType = {
   levels: LogLevel[]
   from: Dayjs
   to: Dayjs
+  page: number
+  pageSize: number
 }
 
 export const LogFilter = ({ bucket }: LogFilterProps) => {
@@ -45,7 +48,9 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
         initialValues={{
           levels: filter.levels ?? [],
           from: dayjs(filter.from),
-          to: dayjs(filter.to)
+          to: dayjs(filter.to),
+          page: filter.page ?? 0,
+          pageSize: filter.pageSize ?? 50
         }}
         onSubmit={values => {
           d(
@@ -55,13 +60,13 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
                 levels: values.levels,
                 from: values.from.toJSON(),
                 to: values.to.toJSON(),
-                page: 0,
-                pageSize: 20
+                page: values.page ?? 0,
+                pageSize: values.pageSize ?? 50
               }
             })
           )
         }}
-        render={({ handleSubmit }) => (
+        render={({ handleSubmit, form, values }) => (
           <form onSubmit={handleSubmit}>
             <Flex flexWrap="wrap">
               <Section width="50%">
@@ -110,6 +115,30 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
                   )}
                 />
               </Section>
+
+              <Section width="20%" alignItems="flex-end">
+                <Button onClick={() => form.change('page', Math.max(Number(values.page) - 1, 0))} htmlType="button">
+                  &laquo;
+                </Button>
+                <Field
+                  name="page"
+                  render={p => <FormControl {...p} label="Page" component={Input} size="middle" htmlType="number" />}
+                />
+                <Button onClick={() => form.change('page', Number(values.page) + 1)} htmlType="button">
+                  &raquo;
+                </Button>
+              </Section>
+
+              <Section width="10%">
+                <Field
+                  name="pageSize"
+                  render={p => (
+                    <FormControl {...p} label="Page size" component={Input} size="middle" htmlType="number" />
+                  )}
+                />
+              </Section>
+
+              <Section width="100%"></Section>
 
               <Section width="20%" marginTop="16px">
                 <Button htmlType="submit" variant="secondary">
