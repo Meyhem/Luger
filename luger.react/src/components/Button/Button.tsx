@@ -1,8 +1,8 @@
-import React from 'react'
 import { Button as AntButton } from 'antd'
 import { ButtonHTMLType } from 'antd/lib/button/button'
-import styled, { DefaultTheme } from 'styled-components/macro'
 import _ from 'lodash'
+import React from 'react'
+import styled, { DefaultTheme } from 'styled-components/macro'
 import { Dictionary } from '../../utils/types'
 
 type SizeType = 'small' | 'middle' | 'large'
@@ -46,22 +46,22 @@ const activeBackgroundColors: Record<ButtonVariants, string> = {
 
 const textColors: Record<ButtonVariants, string> = {
   default: 'primary',
-  primary: 'buttonTextPrimary',
-  secondary: 'buttonTextSecondary',
+  primary: 'white',
+  secondary: 'black',
   transparent: 'primary'
 }
 
 const disabledTextColors: Record<ButtonVariants, string> = {
   default: 'primaryLighter',
-  primary: 'buttonTextPrimary',
-  secondary: 'buttonTextSecondary',
+  primary: 'white',
+  secondary: 'black',
   transparent: 'primary'
 }
 
 const activeTextColors: Record<ButtonVariants, string> = {
   default: 'primary',
-  primary: 'buttonTextPrimary',
-  secondary: 'buttonTextSecondary',
+  primary: 'white',
+  secondary: 'black',
   transparent: 'primary'
 }
 

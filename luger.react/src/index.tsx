@@ -1,5 +1,7 @@
 import 'antd/dist/antd.css'
 import axios from 'axios'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
 import qs from 'qs'
 import ReactDOM from 'react-dom'
 import { I18nextProvider } from 'react-i18next'
@@ -15,6 +17,8 @@ import { i18n } from './i18n'
 import { createReduxStore } from './redux/store'
 import { GlobalStyle, theme } from './theme/theme'
 import { applyAxiosInterceptors } from './utils/axios'
+
+dayjs.extend(utc)
 
 const init = () =>
   new Promise<{ store: Store; persistor: Persistor }>(resolve => {

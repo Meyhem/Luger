@@ -58,7 +58,7 @@ export const Layout: FC<LayoutProps> = ({ children, heading }) => {
       <Sider>
         <Link to={Routes.Dashboard}>
           <SiderItem>
-            <Text fontSize="24px">Luger</Text>
+            <Text fontSize="24px">Lugᛊᚱ</Text>
           </SiderItem>
         </Link>
 
