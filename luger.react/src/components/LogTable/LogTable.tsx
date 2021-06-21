@@ -40,6 +40,7 @@ const LogCell = css`
 const LogCellLevel = styled.td<{ level: LogLevel }>`
   ${LogCell};
   width: 90px;
+  vertical-align: top;
   font-weight: bold;
   white-space: nowrap;
   color: ${({ level }) => levelColorMap[level][1]};
