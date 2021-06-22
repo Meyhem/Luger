@@ -34,6 +34,7 @@ namespace Luger.Api.Features.Logging
             DateTimeOffset from, 
             DateTimeOffset to, 
             string[] levels, 
+            string message,
             int page, 
             int pageSize)
         {
@@ -42,8 +43,9 @@ namespace Luger.Api.Features.Logging
             var levelsFilter = levels.Any() ? Builders<BsonDocument>.Filter.AnyIn("level", levels) : Builders<BsonDocument>.Filter.Empty;
             var fromFilter = Builders<BsonDocument>.Filter.Gte("timestamp", from.ToUnixTimeMilliseconds());
             var toFilter = Builders<BsonDocument>.Filter.Lte("timestamp", to.ToUnixTimeMilliseconds());
+            var textFilter = Builders<BsonDocument>.Filter.Regex("message", message);
 
-            var composedFilters = Builders<BsonDocument>.Filter.And(levelsFilter, fromFilter, toFilter);
+            var composedFilters = Builders<BsonDocument>.Filter.And(levelsFilter, fromFilter, toFilter, textFilter);
             
             var result = await col.FindAsync<BsonDocument>(composedFilters, new() { Limit = pageSize, Skip = page * pageSize });
 
@@ -78,14 +80,14 @@ namespace Luger.Api.Features.Logging
                 .Any();
 
                 if (exists) continue;
-
+                
                 await db.CreateCollectionAsync(
                     b.Id, 
                     new() 
                     {
                         Capped =  b.MaxDocuments.HasValue || b.MaxSize.HasValue, 
                         MaxDocuments = b.MaxDocuments, 
-                        MaxSize = b.MaxSize 
+                        MaxSize = b.MaxSize
                     });
             }
         }

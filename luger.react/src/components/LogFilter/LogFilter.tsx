@@ -1,4 +1,4 @@
-import { Menu } from 'antd'
+import { Menu, Tooltip } from 'antd'
 import dayjs, { Dayjs, OpUnitType } from 'dayjs'
 import _ from 'lodash'
 import { Field, Form } from 'react-final-form'
@@ -32,13 +32,29 @@ const Section = styled(Flex)`
   padding: 8px 16px 0 16px;
 `
 
+const CenteredInput = styled(Input)`
+  text-align: center;
+`
+
+const HelpIconTooltip = styled(Tooltip)`
+  display: flex;
+  align-items: center;
+  font-size: 30px;
+  color: ${themeColor('primary')};
+  cursor: pointer;
+  height: 40px;
+`
+
 type FilterType = {
   levels: LogLevel[]
   from: Dayjs
   to: Dayjs
   page: number
   pageSize: number
+  message: string
 }
+
+const forceNumber = (v: any) => (_.isNaN(_.toNumber(v)) ? 0 : _.toNumber(v))
 
 export const LogFilter = ({ bucket }: LogFilterProps) => {
   const d = useDispatch()
@@ -48,11 +64,12 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
     <LogFilterContainer>
       <Form<FilterType>
         initialValues={{
-          levels: filter.levels ?? [],
+          levels: filter.levels || [],
           from: dayjs.utc(filter.from),
           to: dayjs.utc(filter.to),
-          page: filter.page ?? 0,
-          pageSize: filter.pageSize ?? 50
+          page: filter.page || 0,
+          pageSize: filter.pageSize || 50,
+          message: filter.message || ''
         }}
         onSubmit={values => {
           d(
@@ -62,8 +79,9 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
                 levels: values.levels,
                 from: values.from.toJSON(),
                 to: values.to.toJSON(),
-                page: values.page ?? 0,
-                pageSize: values.pageSize ?? 50
+                page: values.page || 0,
+                pageSize: values.pageSize || 50,
+                message: values.message
               }
             })
           )
@@ -124,28 +142,33 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
                   />
                 </Section>
 
-                <Section width="20%" alignItems="flex-end">
-                  <Button onClick={() => form.change('page', Math.max(Number(values.page) - 1, 0))} htmlType="button">
-                    &laquo;
-                  </Button>
+                <Section width="44%">
                   <Field
-                    name="page"
-                    render={p => <FormControl {...p} label="Page" component={Input} size="middle" htmlType="number" />}
+                    name="message"
+                    render={p => <FormControl {...p} label="Message (regex)" component={Input} size="middle" />}
                   />
-                  <Button onClick={() => form.change('page', Number(values.page) + 1)} htmlType="button">
-                    &raquo;
-                  </Button>
+                </Section>
+                <Section width="6%" alignItems="flex-end" fontSize="30px">
+                  <HelpIconTooltip
+                    placement="bottom"
+                    title={
+                      <span>
+                        Specify regular expression that matches log message
+                        <br />
+                        Examples:
+                        <br />
+                        1. Registration failed, correlation id=\d+
+                        <br />
+                        2. userid=(100|200)
+                        <br />
+                        3. /cAsE InSeNsItIVe/i
+                      </span>
+                    }
+                  >
+                    🛈
+                  </HelpIconTooltip>
                 </Section>
 
-                <Section width="10%">
-                  <Field
-                    name="pageSize"
-                    render={p => (
-                      <FormControl {...p} label="Page size" component={Input} size="middle" htmlType="number" />
-                    )}
-                  />
-                </Section>
-                <Section width="20%"></Section>
                 <Section width="50%" alignItems="center">
                   <Dropdown
                     overlay={
@@ -181,8 +204,44 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
                   </Dropdown>
                 </Section>
 
-                <Section width="100%"></Section>
+                <Section width="20%" alignItems="flex-end">
+                  <Button onClick={() => form.change('page', Math.max(Number(values.page) - 1, 0))} htmlType="button">
+                    &laquo;
+                  </Button>
+                  <Field
+                    name="page"
+                    format={forceNumber}
+                    render={p => (
+                      <FormControl
+                        {...p}
+                        label="Page"
+                        component={CenteredInput}
+                        size="middle"
+                        labelProps={{ textAlign: 'center' }}
+                      />
+                    )}
+                  />
+                  <Button onClick={() => form.change('page', Number(values.page) + 1)} htmlType="button">
+                    &raquo;
+                  </Button>
+                </Section>
 
+                <Section width="10%">
+                  <Field
+                    name="pageSize"
+                    format={forceNumber}
+                    render={p => (
+                      <FormControl
+                        {...p}
+                        label="Page size"
+                        component={CenteredInput}
+                        size="middle"
+                        labelProps={{ textAlign: 'center' }}
+                      />
+                    )}
+                  />
+                </Section>
+                <Section width="100%"></Section>
                 <Section width="20%" marginTop="16px">
                   <Button htmlType="submit" variant="secondary">
                     Filter &raquo;

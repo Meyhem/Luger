@@ -10,6 +10,7 @@ namespace Luger.Api.Endpoints.Models
         public DateTimeOffset To { get; set; }
 
         public string[] Levels { get; set; }
+        public string Message { get; set; }
 
         public int Page { get; set; }
         public int PageSize { get; set; }

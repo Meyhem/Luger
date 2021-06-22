@@ -4,6 +4,7 @@ export type Filter = {
   to: string
   page: number
   pageSize: number
+  message: string
 }
 
 export type SearchState = Record<string, BucketSearchState>

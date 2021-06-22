@@ -11,7 +11,8 @@ export const bucketInitialState = {
     to: new Date().toJSON(),
     levels: [],
     page: 0,
-    pageSize: 20
+    pageSize: 20,
+    message: ''
   },
   loading: false,
   logs: []
