@@ -5,7 +5,7 @@ import { BucketSearchState, SearchState } from './types'
 
 export const initialState: SearchState = {}
 
-export const bucketInitialState = {
+export const bucketInitialState: BucketSearchState = {
   filter: {
     from: dayjs().subtract(15, 'minutes').toJSON(),
     to: new Date().toJSON(),
@@ -13,6 +13,10 @@ export const bucketInitialState = {
     page: 0,
     pageSize: 20,
     message: ''
+  },
+  settings: {
+    columns: ['level', 'timestamp', 'labels', 'message'],
+    wide: false
   },
   loading: false,
   logs: []
@@ -36,6 +40,8 @@ export const searchReducer: Reducer<SearchState, SearchActions> = (state = initi
       return setBucketState(state, action.payload.bucket, {
         logs: []
       })
+    case getType(SearchActions.setSettings):
+      return setBucketState(state, action.payload.bucket, { settings: action.payload.settings })
     default:
       return state
   }

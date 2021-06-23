@@ -15,6 +15,7 @@ type LayoutProps = {
 const LayoutContainer = styled.div`
   display: flex;
   flex: 1;
+  max-width: 100vw;
 `
 
 const Sider = styled.div`
@@ -47,6 +48,7 @@ const SiderItemGroup = styled.div`
 const Content = styled.div`
   width: 100%;
   padding: 16px 32px;
+  max-width: 80vw;
 `
 
 export const Layout: FC<LayoutProps> = ({ children, heading }) => {

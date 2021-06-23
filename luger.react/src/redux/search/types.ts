@@ -7,11 +7,17 @@ export type Filter = {
   message: string
 }
 
+export type TableSettings = {
+  wide: boolean
+  columns: string[]
+}
+
 export type SearchState = Record<string, BucketSearchState>
 
 export type BucketSearchState = {
   filter: Filter
   logs: LogRecord[]
+  settings: TableSettings
   loading: boolean
 }
 

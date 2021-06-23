@@ -8,4 +8,7 @@ export const selectBucket = (state: RootState, bucket: string) => selectState(st
 export const selectFilter = (state: RootState, bucket: string) =>
   selectBucket(state, bucket)?.filter ?? bucketInitialState.filter
 
+export const selectSettings = (state: RootState, bucket: string) =>
+  selectBucket(state, bucket)?.settings ?? bucketInitialState.settings
+
 export const selectLogs = (state: RootState, bucket: string) => selectBucket(state, bucket)?.logs ?? []

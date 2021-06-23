@@ -3,14 +3,14 @@ import React, { FunctionComponent } from 'react'
 import { FieldRenderProps } from 'react-final-form'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components/macro'
-
 import { LocalizedMessage } from '../../form/validation'
+import { themeColor } from '../../theme'
 import { Flex, FlexProps } from '../FlexBox'
 import { Text, TextProps } from '../Text'
-import { themeColor } from '../../theme'
 
 export interface FormControlProps<T> extends FieldRenderProps<T>, FlexProps {
   component: React.ComponentType<{ error?: any; type: string } & T>
+  componentChildren?: React.ReactNode
   hideValidationMessage?: boolean
   label?: string
   labelProps?: TextProps
@@ -50,6 +50,7 @@ export const FormControl = <A extends unknown = any>({
   label,
   labelProps,
   component,
+  componentChildren,
   hideValidationMessage,
   input,
   meta,
@@ -69,7 +70,9 @@ export const FormControl = <A extends unknown = any>({
           {label}
         </Text>
       )}
-      <Component {...input} error={meta.touched && metaErr} {...props} type={htmlType} {...additionalProps} />
+      <Component {...input} error={meta.touched && metaErr} {...props} type={htmlType} {...additionalProps}>
+        {componentChildren}
+      </Component>
       {meta.touched && metaErr && !hideValidationMessage && (
         <FormError
           localizedMessage={metaErr}

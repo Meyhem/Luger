@@ -43,9 +43,9 @@ namespace Luger.Api.Features.Logging
             var levelsFilter = levels.Any() ? Builders<BsonDocument>.Filter.AnyIn("level", levels) : Builders<BsonDocument>.Filter.Empty;
             var fromFilter = Builders<BsonDocument>.Filter.Gte("timestamp", from.ToUnixTimeMilliseconds());
             var toFilter = Builders<BsonDocument>.Filter.Lte("timestamp", to.ToUnixTimeMilliseconds());
-            var textFilter = Builders<BsonDocument>.Filter.Regex("message", message);
+            var messageFilter = Builders<BsonDocument>.Filter.Regex("message", message);
 
-            var composedFilters = Builders<BsonDocument>.Filter.And(levelsFilter, fromFilter, toFilter, textFilter);
+            var composedFilters = Builders<BsonDocument>.Filter.And(levelsFilter, fromFilter, toFilter, messageFilter);
             
             var result = await col.FindAsync<BsonDocument>(composedFilters, new() { Limit = pageSize, Skip = page * pageSize });
 

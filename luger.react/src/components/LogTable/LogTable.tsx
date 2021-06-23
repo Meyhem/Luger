@@ -1,8 +1,11 @@
 import dayjs from 'dayjs'
 import _ from 'lodash'
 import { FC, useCallback, useState } from 'react'
+import { useSelector } from 'react-redux'
 import styled, { css } from 'styled-components/macro'
-import { LogLevel, LogRecord } from '../../redux/search'
+import { LogLevel } from '../../redux/search'
+import { selectLogs, selectSettings } from '../../redux/search/selectors'
+import { RootState } from '../../redux/types'
 import { themeColor } from '../../theme'
 
 const levelColorMap: Record<LogLevel, [string, string]> = {
@@ -17,12 +20,12 @@ const levelColorMap: Record<LogLevel, [string, string]> = {
 }
 
 type LogTableProps = {
-  records: LogRecord[]
+  bucket: string
 }
 
-const LogTableContainer = styled.table`
-  table-layout: fixed;
-  width: 100%;
+const LogTableContainer = styled.table<{ wide: boolean }>`
+  table-layout: ${({ wide }) => (wide ? 'auto' : 'fixed')};
+  width: ${({ wide }) => (wide ? 'auto' : '100%')};
 `
 
 const LogRow = styled.tr`
@@ -42,7 +45,6 @@ const LogCellLevel = styled.td<{ level: LogLevel }>`
   width: 90px;
   vertical-align: top;
   font-weight: bold;
-  white-space: nowrap;
   color: ${({ level }) => levelColorMap[level][1]};
   background: ${({ level }) => levelColorMap[level][0]};
 `
@@ -57,9 +59,32 @@ const LogCellTime = styled.td`
 const LogCellMessage = styled.td<{ expanded?: boolean }>`
   ${LogCell};
   width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
+
+  vertical-align: top;
   white-space: ${({ expanded }) => (expanded ? 'normal' : 'nowrap')};
+
+  div {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+`
+
+const LogCellLabels = styled.td<{ wide: boolean }>`
+  ${LogCell};
+  width: 30%;
+  min-width: 30%;
+  word-break: ${({ wide }) => (wide ? 'keep-all' : 'break-all')};
+`
+const Label = styled.div`
+  padding: 1px 2px;
+  b {
+    color: ${themeColor('primary')};
+  }
+
+  &:hover {
+    background: ${themeColor('bgPrimary')};
+    border-radius: 2px;
+  }
 `
 
 const LogCellMessageContainer: FC = ({ children }) => {
@@ -73,9 +98,11 @@ const LogCellMessageContainer: FC = ({ children }) => {
   )
 }
 
-export const LogTable = ({ records }: LogTableProps) => {
+export const LogTable = ({ bucket }: LogTableProps) => {
+  const records = useSelector((state: RootState) => selectLogs(state, bucket))
+  const settings = useSelector((state: RootState) => selectSettings(state, bucket))
   return (
-    <LogTableContainer>
+    <LogTableContainer wide={settings.wide}>
       <tbody>
         {_.map(records, (record, i) => (
           <LogRow key={i}>
@@ -85,7 +112,18 @@ export const LogTable = ({ records }: LogTableProps) => {
                 {dayjs(record.timestamp).format('YYYY-MM-DD')} <b>{dayjs(record.timestamp).format('HH:mm:ss')}</b>
               </div>
             </LogCellTime>
-            <LogCellMessageContainer>{record.message}</LogCellMessageContainer>
+            <LogCellLabels wide={settings.wide}>
+              {_.map(record.labels, (v, k) => (
+                <Label key={k}>
+                  <b>{k}</b>: {v}
+                </Label>
+              ))}
+            </LogCellLabels>
+            <LogCellMessageContainer>
+              {_.map(_.split(record.message, /(\n|\r\n)/), (line, i) => (
+                <div key={i}>{line}</div>
+              ))}
+            </LogCellMessageContainer>
           </LogRow>
         ))}
       </tbody>
