@@ -12,7 +12,6 @@ type BucketProps = {}
 
 const ScrollContainer = styled.div`
   overflow-x: auto;
-  max-width: 100%;
 `
 
 export const BucketPage: FC<BucketProps> = ({}) => {
