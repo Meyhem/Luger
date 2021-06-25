@@ -49,6 +49,10 @@ export const GlobalStyle = createGlobalStyle`
     color: ${({ theme }) => theme.colors.textPrimary};
     display: flex;
   }
+  
+  html {
+    overflow-y: scroll;
+  }
 `
 
 export function themeColor(color: Color): (p: ThemedStyledProps<unknown, DefaultTheme>) => string {

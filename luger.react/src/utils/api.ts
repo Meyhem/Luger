@@ -1,7 +1,14 @@
+import { notification } from 'antd'
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, CancelToken } from 'axios'
 import { call, cancelled } from 'redux-saga/effects'
 
-// istanbul ignore next
+function formatError(e: Error) {
+  if (axios.isAxiosError(e)) {
+    return `Request failed ${e.message}`
+  }
+  return `Request failed ${e.toString()}`
+}
+
 export const executeApiCall = (axios: AxiosInstance, config: AxiosRequestConfig) => axios(config)
 
 export function createRequestConfiguration(
@@ -33,6 +40,9 @@ export function* api<Response>(apiCallConfiguration: AxiosRequestConfig): Genera
     })
 
     return yield call(executeApiCall, axios, reqData)
+  } catch (e) {
+    notification.error({ type: 'error', message: `Error`, description: formatError(e), duration: 3 })
+    throw e
   } finally {
     if (yield cancelled()) {
       source.cancel('cancelled')

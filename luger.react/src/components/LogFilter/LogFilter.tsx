@@ -1,7 +1,8 @@
 import { Menu, Tooltip } from 'antd'
 import dayjs, { Dayjs, OpUnitType } from 'dayjs'
 import _ from 'lodash'
-import { Field, Form } from 'react-final-form'
+import { useCallback } from 'react'
+import { Field, Form, FormSpy } from 'react-final-form'
 import { useDispatch, useSelector } from 'react-redux'
 import styled from 'styled-components/macro'
 import { LogLevel, SearchActions } from '../../redux/search'
@@ -60,6 +61,29 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
   const d = useDispatch()
   const filter = useSelector((state: RootState) => selectFilter(state, bucket))
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedSubmit = useCallback(
+    _.debounce(
+      (values: FilterType) =>
+        d(
+          SearchActions.setFilter({
+            bucket: bucket,
+            filter: {
+              levels: values.levels,
+              from: values.from.toJSON(),
+              to: values.to.toJSON(),
+              page: values.page || 0,
+              pageSize: values.pageSize || 50,
+              message: values.message
+            }
+          })
+        ),
+      1000,
+      { trailing: true }
+    ),
+    [d]
+  )
+
   return (
     <LogFilterContainer>
       <Form<FilterType>
@@ -71,29 +95,29 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
           pageSize: filter.pageSize || 50,
           message: filter.message || ''
         }}
-        onSubmit={values => {
-          d(
-            SearchActions.setFilter({
-              bucket: bucket,
-              filter: {
-                levels: values.levels,
-                from: values.from.toJSON(),
-                to: values.to.toJSON(),
-                page: values.page || 0,
-                pageSize: values.pageSize || 50,
-                message: values.message
-              }
-            })
-          )
-        }}
+        // initialValuesEqual={_.isEqual}
+        onSubmit={debouncedSubmit}
         render={({ handleSubmit, form, values }) => {
           const createJumpHandler = (amount: number, unit: OpUnitType) => () => {
             form.change('from', dayjs().subtract(amount, unit))
             form.change('to', dayjs())
             form.submit()
           }
+          const createPageNavHandler = (change: number) => () => {
+            form.change('page', Math.max(values.page + change, 0))
+            form.submit()
+          }
+
           return (
             <form onSubmit={handleSubmit}>
+              <FormSpy
+                onChange={state => {
+                  if (_.some(_.values(state.dirtyFields)) && !state.active) {
+                    form.submit()
+                  }
+                }}
+                subscription={{ active: true, dirtyFields: true }}
+              />
               <Flex flexWrap="wrap">
                 <Section width="50%">
                   <Field
@@ -205,7 +229,7 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
                 </Section>
 
                 <Section width="20%" alignItems="flex-end">
-                  <Button onClick={() => form.change('page', Math.max(Number(values.page) - 1, 0))} htmlType="button">
+                  <Button onClick={createPageNavHandler(-1)} htmlType="button">
                     &laquo;
                   </Button>
                   <Field
@@ -221,7 +245,7 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
                       />
                     )}
                   />
-                  <Button onClick={() => form.change('page', Number(values.page) + 1)} htmlType="button">
+                  <Button onClick={createPageNavHandler(1)} htmlType="button">
                     &raquo;
                   </Button>
                 </Section>
@@ -240,12 +264,6 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
                       />
                     )}
                   />
-                </Section>
-                <Section width="100%"></Section>
-                <Section width="20%" marginTop="16px">
-                  <Button htmlType="submit" variant="secondary">
-                    Filter &raquo;
-                  </Button>
                 </Section>
               </Flex>
             </form>

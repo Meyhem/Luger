@@ -48,7 +48,7 @@ const SiderItemGroup = styled.div`
 const Content = styled.div`
   width: 100%;
   padding: 16px 32px;
-  max-width: 80vw;
+  max-width: (80vw - 30px); // 30px compensate scroll bar
 `
 
 export const Layout: FC<LayoutProps> = ({ children, heading }) => {
