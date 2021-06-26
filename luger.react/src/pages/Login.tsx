@@ -1,13 +1,12 @@
 import { Form } from 'react-final-form'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import styled from 'styled-components/macro'
 import { Button } from '../components/Button'
 import { Flex } from '../components/FlexBox'
 import { InputField } from '../form/InputField'
-import { useApi } from '../hooks/useApi'
 import { AuthActions } from '../redux/auth'
+import { getAuthLoading } from '../redux/auth/selectors'
 import { themeColor, themeSpace } from '../theme'
-import { AxiosApiResponse } from '../utils/types'
 
 const LoginPageContainer = styled.div`
   display: flex;
@@ -31,7 +30,7 @@ const SubmitButton = styled(Button)`
 
 export const LoginPage = () => {
   const d = useDispatch()
-  const { loading, request } = useApi<AxiosApiResponse<{ token: string }>>({ cancelPrevious: true })
+  const loading = useSelector(getAuthLoading)
 
   return (
     <LoginPageContainer>
@@ -41,12 +40,7 @@ export const LoginPage = () => {
           // eslint-disable-next-line no-console
           onSubmit={async v => {
             try {
-              const resp = await request({
-                method: 'post',
-                url: '/api/user/token',
-                data: { userId: v.user }
-              })
-              d(AuthActions.setToken({ token: resp.data.data.token }))
+              d(AuthActions.signIn({ userId: v.user }))
             } catch (e) {}
           }}
           render={({ handleSubmit }) => (
@@ -54,7 +48,7 @@ export const LoginPage = () => {
               <InputField name="user" label="User" placeholder="User" />
 
               <Flex justifyContent="center">
-                <SubmitButton loading={loading} disabled={loading} htmlType="submit" variant="primary">
+                <SubmitButton loading={loading} htmlType="submit" variant="primary">
                   Go
                 </SubmitButton>
               </Flex>

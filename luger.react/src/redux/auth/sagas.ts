@@ -1,6 +1,26 @@
+import { notification } from 'antd'
+import axios from 'axios'
 import { all, put, takeLatest } from 'redux-saga/effects'
 import { getType } from 'typesafe-actions'
+import { AxiosApiResponse } from '../../utils/types'
+import { loadingCall } from '../loading'
 import { AuthActions } from './actions'
+
+export function* signIn(action: ReturnType<typeof AuthActions.signIn>) {
+  try {
+    const resp: AxiosApiResponse<any> = yield loadingCall(AuthActions, axios, {
+      method: 'post',
+      url: '/api/user/token',
+      data: { userId: action.payload.userId }
+    })
+
+    yield put(AuthActions.setToken({ token: resp.data.data.token }))
+  } catch (e) {
+    if (axios.isAxiosError(e)) {
+      notification.error({ type: 'error', message: 'Login failed', description: e.message })
+    }
+  }
+}
 
 export function* logout() {
   yield put(
@@ -8,8 +28,6 @@ export function* logout() {
       token: ''
     })
   )
-
-  throw new Error('Not implemented')
 }
 
 export function* handleRefreshToken() {
@@ -17,5 +35,5 @@ export function* handleRefreshToken() {
 }
 
 export function* authSagas() {
-  yield all([takeLatest(getType(AuthActions.logout), logout)])
+  yield all([takeLatest(getType(AuthActions.logout), logout), takeLatest(getType(AuthActions.signIn), signIn)])
 }

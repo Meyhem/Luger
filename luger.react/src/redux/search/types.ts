@@ -1,3 +1,5 @@
+import { LoadingState } from '../loading'
+
 export type Filter = {
   levels: LogLevel[]
   from: string
@@ -18,8 +20,7 @@ export type BucketSearchState = {
   filter: Filter
   logs: LogRecord[]
   settings: TableSettings
-  loading: boolean
-}
+} & LoadingState
 
 export enum LogLevel {
   Debug = 'Debug',

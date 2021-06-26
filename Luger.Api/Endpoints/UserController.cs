@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Luger.Api.Endpoints.Models;
 using Luger.Api.Features.Configuration;
 using System.Linq;
+using System.Threading;
 
 namespace Luger.Api.Endpoints
 {
@@ -25,6 +26,7 @@ namespace Luger.Api.Endpoints
         [Route("token")]
         public IActionResult CreateToken([FromBody] RequestCreateToken model)
         {
+            Thread.Sleep(2000);
             if (!ModelState.IsValid)
             {
                 return BadRequestModelState();
