@@ -11,6 +11,7 @@ export const SearchActions = {
       filter: Filter
     }>
   >(),
+  addLabelFilter: createAction('SEARCH/ADD_LABEL_FILTER')<BucketScoped<{ name: string; value: string }>>(),
   load: createAction('SEARCH/LOAD')<BucketScoped>(),
   setLogs: createAction('SEARCH/SET_LOGS')<BucketScoped<{ logs: LogRecord[] }>>(),
   resetLogs: createAction('SEARCH/RESET_LOGS')<BucketScoped>(),

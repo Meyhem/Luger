@@ -29,7 +29,7 @@ export function* load({ payload }: ReturnType<typeof SearchActions.load>) {
   const response: AxiosApiResponse<{ logs: LogRecordResponse[] }> = yield apiCall({
     method: 'post',
     url: `/api/search/${payload.bucket}`,
-    data: filters
+    data: { ...filters, labels: _.filter(filters.labels, 'name') }
   })
 
   yield put(SearchActions.setLogs({ bucket: payload.bucket, logs: mapLogRecordResponse(response.data.data.logs) }))
@@ -41,5 +41,8 @@ export function* reload({ payload }: ReturnType<typeof SearchActions.setFilter>)
 }
 
 export function* searchSaga() {
-  yield all([takeLatest(getType(SearchActions.load), load), takeLatest(getType(SearchActions.setFilter), reload)])
+  yield all([
+    takeLatest(getType(SearchActions.load), load),
+    takeLatest([getType(SearchActions.setFilter), getType(SearchActions.addLabelFilter)], reload)
+  ])
 }

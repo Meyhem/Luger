@@ -33,6 +33,13 @@ export const searchReducer: Reducer<SearchState, SearchActions> = (state = initi
       return setBucketState(state, action.payload.bucket, bucketInitialState)
     case getType(SearchActions.setFilter):
       return setBucketState(state, action.payload.bucket, { filter: action.payload.filter })
+    case getType(SearchActions.addLabelFilter):
+      return setBucketState(state, action.payload.bucket, {
+        filter: {
+          ...state[action.payload.bucket].filter,
+          labels: [...state[action.payload.bucket].filter.labels, action.payload]
+        }
+      })
     case getType(SearchActions.setLogs):
       return setBucketState(state, action.payload.bucket, {
         logs: action.payload.logs

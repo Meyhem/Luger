@@ -18,6 +18,7 @@ import { Box, Flex } from '../FlexBox'
 import { FormControl } from '../FormControl'
 import { Input } from '../Input'
 import { Select } from '../Select'
+import { Text } from '../Text'
 import { LabelFilterField } from './LabelFilterField'
 
 type LogFilterProps = {
@@ -70,7 +71,6 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSubmit = useCallback(
     _.debounce((values: FilterType) => {
-      console.log('exec debounce')
       d(
         SearchActions.setFilter({
           bucket: bucket,
@@ -102,7 +102,6 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
           labels: _.map(filter.labels, l => ({ ...l, id: _.uniqueId('labelId_') }))
         }}
         mutators={{ ...arrayMutators }}
-        // initialValuesEqual={_.isEqual}
         onSubmit={debouncedSubmit}
         render={({ handleSubmit, form, values }) => {
           const createJumpHandler = (amount: number, unit: OpUnitType) => () => {
@@ -203,6 +202,7 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
                 <Section width="50%" alignItems="center">
                   <Box paddingTop={26}>
                     <Dropdown
+                      trigger={['click']}
                       overlay={
                         <Menu>
                           <Menu.Item key="1" onClick={createJumpHandler(5, 'minutes')}>
@@ -238,6 +238,9 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
                 </Section>
 
                 <Section width="70%" flexDirection="column" alignItems="flex-start">
+                  <Text color="primary" bold>
+                    Labels
+                  </Text>
                   <FieldArray name="labels">
                     {({ fields }) => (
                       <Flex flexDirection="column">
@@ -255,6 +258,7 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
                   </FieldArray>
                   {_.every(values.labels, l => !!l.name) && (
                     <Button
+                      padding="0"
                       onClick={() => form.mutators.push('labels', { id: _.uniqueId('labelId_'), name: '', value: '' })}
                     >
                       Add label filter +

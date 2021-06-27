@@ -1,9 +1,9 @@
 import dayjs from 'dayjs'
 import _ from 'lodash'
 import { FC, useCallback, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import styled, { css } from 'styled-components/macro'
-import { LogLevel } from '../../redux/search'
+import { LogLevel, SearchActions } from '../../redux/search'
 import { selectLogs, selectSettings } from '../../redux/search/selectors'
 import { RootState } from '../../redux/types'
 import { themeColor } from '../../theme'
@@ -77,6 +77,7 @@ const LogCellLabels = styled.td<{ wide: boolean }>`
 `
 const Label = styled.div`
   padding: 1px 2px;
+  cursor: pointer;
   b {
     color: ${themeColor('primary')};
   }
@@ -101,6 +102,8 @@ const LogCellMessageContainer: FC = ({ children }) => {
 export const LogTable = ({ bucket }: LogTableProps) => {
   const records = useSelector((state: RootState) => selectLogs(state, bucket))
   const settings = useSelector((state: RootState) => selectSettings(state, bucket))
+  const d = useDispatch()
+
   return (
     <LogTableContainer wide={settings.wide}>
       <tbody>
@@ -114,7 +117,7 @@ export const LogTable = ({ bucket }: LogTableProps) => {
             </LogCellTime>
             <LogCellLabels wide={settings.wide}>
               {_.map(record.labels, (v, k) => (
-                <Label key={k}>
+                <Label key={k} onClick={() => d(SearchActions.addLabelFilter({ bucket: bucket, name: k, value: v }))}>
                   <b>{k}</b>: {v}
                 </Label>
               ))}
