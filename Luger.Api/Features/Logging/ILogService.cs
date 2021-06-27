@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Luger.Api.Features.Logging.Dto;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -8,6 +9,6 @@ namespace Luger.Api.Features.Logging
     {
         Task AddLogs(string bucket, IEnumerable<LogRecord> logs);
         Task PrepareDatabase();
-        Task<IEnumerable<LogRecord>> QueryLogs(string bucket, DateTimeOffset from, DateTimeOffset to, string[] levels, string message, int page, int pageSize);
+        Task<IEnumerable<LogRecord>> QueryLogs(string bucket, DateTimeOffset from, DateTimeOffset to, string[] levels, string message, IEnumerable<LabelDto> labels, int page, int pageSize);
     }
 }

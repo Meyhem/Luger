@@ -1,4 +1,5 @@
 ﻿using Luger.Api.Features.Configuration;
+using Luger.Api.Features.Logging.Dto;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
@@ -35,22 +36,26 @@ namespace Luger.Api.Features.Logging
             DateTimeOffset to, 
             string[] levels, 
             string message,
+            IEnumerable<LabelDto> labels,
             int page, 
             int pageSize)
         {
             var col = db.GetCollection<BsonDocument>(bucket);
-            
-            var levelsFilter = levels.Any() ? Builders<BsonDocument>.Filter.AnyIn("level", levels) : Builders<BsonDocument>.Filter.Empty;
-            var fromFilter = Builders<BsonDocument>.Filter.Gte("timestamp", from.ToUnixTimeMilliseconds());
-            var toFilter = Builders<BsonDocument>.Filter.Lte("timestamp", to.ToUnixTimeMilliseconds());
-            var messageFilter = Builders<BsonDocument>.Filter.Regex("message", message);
+            var filterBuilder = Builders<BsonDocument>.Filter;
 
-            var composedFilters = Builders<BsonDocument>.Filter.And(levelsFilter, fromFilter, toFilter, messageFilter);
+            var levelsFilter = levels.Any() ? filterBuilder.AnyIn("level", levels) : filterBuilder.Empty;
+            var fromFilter = filterBuilder.Gte("timestamp", from.ToUnixTimeMilliseconds());
+            var toFilter = filterBuilder.Lte("timestamp", to.ToUnixTimeMilliseconds());
+            var messageFilter = !string.IsNullOrEmpty(message) ? filterBuilder.Regex("message", message) : filterBuilder.Empty;
+            var labelFilter = filterBuilder.And(
+                labels.Select(l => filterBuilder.Regex(l.Name, l.Value))
+            );
+
+            var composedFilters = filterBuilder.And(levelsFilter, fromFilter, toFilter, messageFilter, labelFilter);
             
             var result = await col.FindAsync<BsonDocument>(composedFilters, new() { Limit = pageSize, Skip = page * pageSize });
 
             var ret = new List<LogRecord>(pageSize);
-
             foreach (var r in result.ToEnumerable())
             {
                 try
@@ -68,7 +73,7 @@ namespace Luger.Api.Features.Logging
 
             return ret;
         }
-         
+
         public async Task PrepareDatabase()
         {
             foreach (var b in opts.Value.Buckets)

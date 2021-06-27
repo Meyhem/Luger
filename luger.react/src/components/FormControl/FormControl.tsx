@@ -16,6 +16,7 @@ export interface FormControlProps<T> extends FieldRenderProps<T>, FlexProps {
   labelProps?: TextProps
   htmlType?: string
   additionalProps?: T
+  errorStateIndependent?: boolean
 }
 
 const StyledFormControl = styled(Flex)<FormControlProps<unknown>>`
@@ -56,6 +57,7 @@ export const FormControl = <A extends unknown = any>({
   meta,
   htmlType = '',
   additionalProps,
+  errorStateIndependent,
   ...props
 }: FormControlProps<A>) => {
   const Component = component
@@ -73,7 +75,7 @@ export const FormControl = <A extends unknown = any>({
       <Component {...input} error={meta.touched && metaErr} {...props} type={htmlType} {...additionalProps}>
         {componentChildren}
       </Component>
-      {meta.touched && metaErr && !hideValidationMessage && (
+      {(errorStateIndependent || meta.touched) && metaErr && !hideValidationMessage && (
         <FormError
           localizedMessage={metaErr}
           label={_.endsWith(trimmedLabel, '*') ? trimmedLabel.slice(0, -1) : trimmedLabel}

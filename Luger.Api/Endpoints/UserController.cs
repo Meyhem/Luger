@@ -26,7 +26,6 @@ namespace Luger.Api.Endpoints
         [Route("token")]
         public IActionResult CreateToken([FromBody] RequestCreateToken model)
         {
-            Thread.Sleep(2000);
             if (!ModelState.IsValid)
             {
                 return BadRequestModelState();
@@ -36,6 +35,7 @@ namespace Luger.Api.Endpoints
             var key = configurationProvider.GetIssuesSigningKey();
             var jwtOpts = configurationProvider.GetJwtBearerOptions();
             var users = configurationProvider.GetUsers();
+
 
             var user = users.FirstOrDefault(u => u.Id == model.UserId);
 

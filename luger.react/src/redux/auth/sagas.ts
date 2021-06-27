@@ -1,7 +1,9 @@
 import { notification } from 'antd'
 import axios from 'axios'
+import { push } from 'connected-react-router'
 import { all, put, takeLatest } from 'redux-saga/effects'
 import { getType } from 'typesafe-actions'
+import { Routes } from '../../utils/routes'
 import { AxiosApiResponse } from '../../utils/types'
 import { loadingCall } from '../loading'
 import { AuthActions } from './actions'
@@ -15,6 +17,7 @@ export function* signIn(action: ReturnType<typeof AuthActions.signIn>) {
     })
 
     yield put(AuthActions.setToken({ token: resp.data.data.token }))
+    yield put(push({ pathname: Routes.Dashboard }))
   } catch (e) {
     if (axios.isAxiosError(e)) {
       notification.error({ type: 'error', message: 'Login failed', description: e.message })

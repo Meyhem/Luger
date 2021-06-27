@@ -11,6 +11,7 @@ declare module '@fvilers/disable-react-devtools' {
   export const disableReactDevTools: () => void
 }
 
+import { RootState } from './redux/types'
 import { theme } from './theme'
 
 type ThemeInterface = typeof theme
@@ -20,7 +21,6 @@ declare module 'styled-components' {
   export interface DefaultTheme extends ThemeInterface {}
 }
 
-import { RootState } from './redux/types'
 declare module 'react-redux' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
   export interface DefaultRootState extends RootState {}

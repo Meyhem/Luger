@@ -1,5 +1,10 @@
 import { LoadingState } from '../loading'
 
+export type LabelFilter = {
+  name: string
+  value: string
+}
+
 export type Filter = {
   levels: LogLevel[]
   from: string
@@ -7,6 +12,7 @@ export type Filter = {
   page: number
   pageSize: number
   message: string
+  labels: LabelFilter[]
 }
 
 export type TableSettings = {
