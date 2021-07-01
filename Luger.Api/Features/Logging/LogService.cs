@@ -48,7 +48,7 @@ namespace Luger.Api.Features.Logging
             var toFilter = filterBuilder.Lte("timestamp", to.ToUnixTimeMilliseconds());
             var messageFilter = !string.IsNullOrEmpty(message) ? filterBuilder.Regex("message", message) : filterBuilder.Empty;
             var labelFilter = filterBuilder.And(
-                labels.Select(l => filterBuilder.Regex(l.Name, l.Value))
+                labels.Select(l => filterBuilder.Regex(l.Name, l.Value ?? ""))
             );
 
             var composedFilters = filterBuilder.And(levelsFilter, fromFilter, toFilter, messageFilter, labelFilter);

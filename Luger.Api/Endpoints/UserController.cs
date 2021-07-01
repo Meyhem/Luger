@@ -9,10 +9,12 @@ using Luger.Api.Endpoints.Models;
 using Luger.Api.Features.Configuration;
 using System.Linq;
 using System.Threading;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Luger.Api.Endpoints
 {
     [Route("api/[controller]")]
+    [Authorize]
     public class UserController : LugerControllerBase
     {
         private readonly ILugerConfigurationProvider configurationProvider;
@@ -24,20 +26,16 @@ namespace Luger.Api.Endpoints
 
         [HttpPost]
         [Route("token")]
-        public IActionResult CreateToken([FromBody] RequestCreateToken model)
+        [AllowAnonymous]
+        public IActionResult SignIn([FromBody] RequestCreateToken model)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequestModelState();
             }
 
-            var tokenFactory = new JwtSecurityTokenHandler();
-            var key = configurationProvider.GetIssuesSigningKey();
-            var jwtOpts = configurationProvider.GetJwtBearerOptions();
-            var users = configurationProvider.GetUsers();
-
-
-            var user = users.FirstOrDefault(u => u.Id == model.UserId);
+            var user = configurationProvider.GetUsers()
+                .FirstOrDefault(u => u.Id == model.UserId && u.Password == model.Password);
 
             if (user is null)
             {
@@ -48,13 +46,50 @@ namespace Luger.Api.Endpoints
                 );
             }
 
+            return Ok(ApiResponse.FromData(new ResponseCreateToken
+            {
+                Token = CreateToken(user)
+            }));
+        }
+
+        [HttpPost]
+        [Route("token/refresh")]
+        public IActionResult RefreshToken()
+        {
+
+            var user = configurationProvider.GetUsers()
+                .FirstOrDefault(u => u.Id == User.Identity?.Name);
+
+            if (user is null)
+            {
+                return BadRequest(
+                    ApiResponse.FromError(
+                        LugerError.From(LugerErrorCode.InvalidCredentials, "Invalid credentials")
+                    )
+                );
+            }
+
+            return Ok(ApiResponse.FromData(new ResponseCreateToken
+            {
+                Token = CreateToken(user)
+            }));
+        }
+
+        [NonAction]
+        private string CreateToken(UserOptions user)
+        {
+            var tokenFactory = new JwtSecurityTokenHandler();
+            var key = configurationProvider.GetIssuesSigningKey();
+            var jwtOpts = configurationProvider.GetJwtBearerOptions();
+
             user.Buckets ??= Array.Empty<string>();
 
             var tok = tokenFactory.CreateToken(new()
             {
                 Issuer = jwtOpts.GetValue<string>("Issuer"),
                 Audience = jwtOpts.GetValue<string>("Audience"),
-                Expires = DateTime.UtcNow.AddHours(1),
+
+                Expires = DateTime.UtcNow.AddMinutes(1),
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id),
@@ -63,12 +98,7 @@ namespace Luger.Api.Endpoints
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature)
             });
 
-            var str = tokenFactory.WriteToken(tok);
-
-            return Ok(ApiResponse.FromData(new ResponseCreateToken
-            {
-                Token = str
-            }));
+            return tokenFactory.WriteToken(tok);
         }
     }
 }

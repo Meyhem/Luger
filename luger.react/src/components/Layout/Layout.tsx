@@ -1,11 +1,14 @@
 import _ from 'lodash'
-import { FC } from 'react'
-import { useSelector } from 'react-redux'
+import { FC, useCallback } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { generatePath, Link, useLocation } from 'react-router-dom'
 import styled from 'styled-components/macro'
+import { AuthActions } from '../../redux/auth'
 import { getBuckets } from '../../redux/auth/selectors'
 import { themeColor } from '../../theme'
 import { Routes } from '../../utils/routes'
+import { Button } from '../Button'
+import { Flex } from '../FlexBox'
 import { Text } from '../Text'
 
 type LayoutProps = {
@@ -19,18 +22,23 @@ const LayoutContainer = styled.div`
 `
 
 const Sider = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+
   display: flex;
   flex-direction: column;
 
   background: ${themeColor('bgSecondary')};
-  min-width: 20vw;
+  width: 20vw;
+  height: 100%;
 `
 
-const SiderItem = styled.div<{ active?: boolean }>`
+const SiderItem = styled.div<{ active?: boolean; clickable?: boolean }>`
   padding: 16px 32px;
   font-weight: ${({ active }) => (active ? 'bold' : 'normal')};
 
-  cursor: pointer;
+  cursor: ${({ clickable }) => (clickable ? 'pointer' : 'normal')};
   user-select: none;
 
   &:hover {
@@ -47,22 +55,31 @@ const SiderItemGroup = styled.div`
 
 const Content = styled.div`
   width: 100%;
-  padding: 16px 32px;
   max-width: (80vw - 30px); // 30px compensate scroll bar
+  padding: 16px 32px 16px calc(20vw + 32px);
 `
 
 export const Layout: FC<LayoutProps> = ({ children, heading }) => {
   const buckets = useSelector(getBuckets)
   const { pathname } = useLocation()
+  const d = useDispatch()
+
+  const logout = useCallback(() => d(AuthActions.logout()), [d])
 
   return (
     <LayoutContainer>
       <Sider>
-        <Link to={Routes.Dashboard}>
-          <SiderItem>
-            <Text fontSize="24px">Lugᛊᚱ</Text>
-          </SiderItem>
-        </Link>
+        <SiderItem>
+          <Flex justifyContent="space-between">
+            <Link to={Routes.Dashboard}>
+              <Text fontSize="24px">Lugᛊᚱ</Text>
+            </Link>
+
+            <Button variant="transparent" onClick={logout}>
+              <Text fontSize="24px">⍇</Text>
+            </Button>
+          </Flex>
+        </SiderItem>
 
         <SiderItemGroup>
           {_.map(buckets, b => {
@@ -70,7 +87,7 @@ export const Layout: FC<LayoutProps> = ({ children, heading }) => {
             const isActiveItem = pathname === bucketPath
             return (
               <Link key={b} to={bucketPath}>
-                <SiderItem active={isActiveItem}>
+                <SiderItem active={isActiveItem} clickable>
                   {isActiveItem && <>&raquo;</>} Bucket/{b}
                 </SiderItem>
               </Link>

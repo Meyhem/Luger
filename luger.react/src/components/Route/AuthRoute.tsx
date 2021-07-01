@@ -1,8 +1,7 @@
 import React from 'react'
-import { Redirect, Route, RouteProps } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-
-import { isUserLoggedIn } from '../../redux/auth/selectors'
+import { Redirect, Route, RouteProps } from 'react-router-dom'
+import { isAuthenticated } from '../../redux/auth/selectors'
 import { Routes } from '../../utils/routes'
 
 type Props = {
@@ -10,13 +9,13 @@ type Props = {
 } & RouteProps
 
 export const AuthRoute = ({ component: Component, ...rest }: Props) => {
-  const loggedIn = useSelector(isUserLoggedIn)
+  const isAuth = useSelector(isAuthenticated)
 
   return (
     <Route
       {...rest}
       render={props => {
-        if (!loggedIn) {
+        if (!isAuth) {
           return (
             <Redirect
               to={{

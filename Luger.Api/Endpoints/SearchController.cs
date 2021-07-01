@@ -2,6 +2,7 @@
 using Luger.Api.Endpoints.Models;
 using Luger.Api.Features.Logging;
 using Luger.Api.Features.Logging.Dto;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 namespace Luger.Api.Endpoints
 {
     [Route("api/[controller]")]
+    [Authorize]
     public class SearchController : Controller
     {
         private readonly ILogService logService;

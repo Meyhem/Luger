@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios'
 import { Store } from 'redux'
+import { AuthActions } from '../redux/auth'
 import { getToken } from '../redux/auth/selectors'
 
 function formatAuthHeader(token: string) {
@@ -23,14 +24,14 @@ export function applyAxiosInterceptors(store: Store) {
 
   axios.interceptors.response.use(undefined, async (error: AxiosError<any>) => {
     if (axios.isCancel(error)) return Promise.reject(error)
-    // if (error.response) {
-    //   switch (error.response.status) {
-    //     case 401: {
-    //       store.dispatch(AuthActions.logout())
-    //       break
-    //     }
-    //   }
-    // }
+    if (error.response) {
+      switch (error.response.status) {
+        case 401: {
+          store.dispatch(AuthActions.logout())
+          break
+        }
+      }
+    }
     return Promise.reject(error)
   })
 }

@@ -6,12 +6,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -46,6 +43,7 @@ namespace Luger.Api
 
                 var key = jwtSection.GetValue<string>("TokenValidationParameters:IssuerSigningKey");
                 jwt.TokenValidationParameters.IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+                jwt.TokenValidationParameters.ClockSkew = TimeSpan.Zero;
             });
 
             services.Configure<LoggingOptions>(Configuration.GetSection("Luger"));

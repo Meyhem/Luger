@@ -35,17 +35,18 @@ export const LoginPage = () => {
   return (
     <LoginPageContainer>
       <LoginFormContainer>
-        <Form<{ user: string }>
-          initialValues={{ user: '' }}
+        <Form<{ user: string; password: string }>
+          initialValues={{ user: '', password: '' }}
           // eslint-disable-next-line no-console
           onSubmit={async v => {
             try {
-              d(AuthActions.signIn({ userId: v.user }))
+              d(AuthActions.signIn({ userId: v.user, password: v.password }))
             } catch (e) {}
           }}
           render={({ handleSubmit }) => (
             <form onSubmit={handleSubmit}>
               <InputField name="user" label="User" placeholder="User" />
+              <InputField name="password" label="Password" placeholder="Password" htmlType="password" />
 
               <Flex justifyContent="center">
                 <SubmitButton loading={loading} htmlType="submit" variant="primary">

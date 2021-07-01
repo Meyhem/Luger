@@ -5,7 +5,7 @@ export const AuthActions = {
   setToken: createAction('AUTH/SET_TOKEN')<{
     token: string
   }>(),
-  signIn: createAction('AUTH/SIGN_IN')<{ userId: string }>(),
+  signIn: createAction('AUTH/SIGN_IN')<{ userId: string; password: string }>(),
   logout: createAction('AUTH/LOGOUT')(),
   ...createLoadingActions('AUTH')
 }
