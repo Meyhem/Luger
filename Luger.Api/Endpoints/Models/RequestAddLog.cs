@@ -1,4 +1,5 @@
 ﻿using Luger.Api.Features.Logging;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 

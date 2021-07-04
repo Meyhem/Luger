@@ -10,6 +10,7 @@ using Luger.Api.Features.Configuration;
 using System.Linq;
 using System.Threading;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
 
 namespace Luger.Api.Endpoints
 {
@@ -18,10 +19,12 @@ namespace Luger.Api.Endpoints
     public class UserController : LugerControllerBase
     {
         private readonly ILugerConfigurationProvider configurationProvider;
+        private readonly ILogger<UserController> logger;
 
-        public UserController(ILugerConfigurationProvider configurationProvider)
+        public UserController(ILugerConfigurationProvider configurationProvider, ILogger<UserController> logger)
         {
             this.configurationProvider = configurationProvider;
+            this.logger = logger;
         }
 
         [HttpPost]
@@ -29,6 +32,19 @@ namespace Luger.Api.Endpoints
         [AllowAnonymous]
         public IActionResult SignIn([FromBody] RequestCreateToken model)
         {
+            logger.LogWarning("0 Level scope Bad login {userid}", model.UserId);
+            using (logger.BeginScope("{scopename}", "scope1"))
+            {
+                logger.LogWarning("1 Level scope Bad login {userid}", model.UserId);
+                using (logger.BeginScope("{scopename}", "scope2"))
+                {
+                    logger.LogWarning("2 Level scope Bad login {userid}", model.UserId);
+                }
+                logger.LogWarning("again 1 Level scope Bad login {userid}", model.UserId);
+            }
+            logger.LogWarning("again 0 Level scope Bad login {userid}", model.UserId);
+            
+
             if (!ModelState.IsValid)
             {
                 return BadRequestModelState();

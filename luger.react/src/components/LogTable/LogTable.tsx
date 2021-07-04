@@ -71,10 +71,12 @@ const LogCellMessage = styled.td<{ expanded?: boolean }>`
 
 const LogCellLabels = styled.td<{ wide: boolean }>`
   ${LogCell};
+  vertical-align: top;
   width: 30%;
   min-width: 30%;
   word-break: ${({ wide }) => (wide ? 'keep-all' : 'break-all')};
 `
+
 const Label = styled.div`
   padding: 1px 2px;
   cursor: pointer;
@@ -84,7 +86,7 @@ const Label = styled.div`
 
   &:hover {
     background: ${themeColor('bgPrimary')};
-    border-radius: 2px;
+    border-radius: 4px;
   }
 `
 

@@ -1,5 +1,6 @@
 ﻿using Luger.Api.Common;
 using Luger.Api.Endpoints.Models;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
