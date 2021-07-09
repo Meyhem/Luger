@@ -1,6 +1,4 @@
-﻿using Luger.Api.Common;
-using Luger.Api.Endpoints.Models;
-using Luger.Api.Features.Configuration;
+﻿using Luger.Api.Endpoints.Models;
 using Luger.Api.Features.Logging;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -9,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Luger.Api.Endpoints
 {
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class CollectController : Controller
     {
         private readonly ILogService service;

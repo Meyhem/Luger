@@ -1,8 +1,8 @@
 bin/
 obj/
 /packages/
-riderModule.iml
-/_ReSharper.Caches/
+luger_package
+wwwroot
 logs/
 .vs
 *.csproj.user

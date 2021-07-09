@@ -3,6 +3,7 @@ using Luger.Api.Features.Logging;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -78,6 +79,7 @@ namespace Luger.Api
             {
                 config.DocumentTitle = "Luger API";
             });
+            app.UseStaticFiles();
 
             app.UseRouting();
             app.UseCors(c => c.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
@@ -87,6 +89,13 @@ namespace Luger.Api
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
+                endpoints.Map("api/{**path}", delegate (HttpContext ctx)
+                {
+                    ctx.Response.StatusCode = 404;
+                    return Task.CompletedTask;
+                });
+
+                endpoints.MapFallbackToFile("index.html");
             });
         }
 

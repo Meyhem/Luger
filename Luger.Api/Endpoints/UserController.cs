@@ -1,14 +1,12 @@
 ﻿using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Luger.Api.Endpoints.Models;
 using Luger.Api.Features.Configuration;
 using System.Linq;
-using System.Threading;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 
@@ -32,19 +30,6 @@ namespace Luger.Api.Endpoints
         [AllowAnonymous]
         public IActionResult SignIn([FromBody] RequestCreateToken model)
         {
-            logger.LogWarning("0 Level scope Bad login {userid}", model.UserId);
-            using (logger.BeginScope("{scopename}", "scope1"))
-            {
-                logger.LogWarning("1 Level scope Bad login {userid}", model.UserId);
-                using (logger.BeginScope("{scopename}", "scope2"))
-                {
-                    logger.LogWarning("2 Level scope Bad login {userid}", model.UserId);
-                }
-                logger.LogWarning("again 1 Level scope Bad login {userid}", model.UserId);
-            }
-            logger.LogWarning("again 0 Level scope Bad login {userid}", model.UserId);
-            
-
             if (!ModelState.IsValid)
             {
                 return BadRequestModelState();
