@@ -17,6 +17,7 @@ export type Filter = {
 
 export type TableSettings = {
   wide: boolean
+  autoSubmitDelay: number
   columns: string[]
 }
 

@@ -7,8 +7,9 @@ import { Field, Form, FormSpy } from 'react-final-form'
 import { FieldArray } from 'react-final-form-arrays'
 import { useDispatch, useSelector } from 'react-redux'
 import styled from 'styled-components/macro'
+import { forceNumber } from '../../form/utils'
 import { LabelFilter, LogLevel, SearchActions } from '../../redux/search'
-import { selectFilter } from '../../redux/search/selectors'
+import { selectFilter, selectSettings } from '../../redux/search/selectors'
 import { RootState } from '../../redux/types'
 import { themeColor } from '../../theme'
 import { Button } from '../Button'
@@ -62,12 +63,10 @@ type FilterType = {
   labels: LocalLabelFilter[]
 }
 
-const forceNumber = (v: any) => (_.isNaN(_.toNumber(v)) ? 0 : _.toNumber(v))
-
 export const LogFilter = ({ bucket }: LogFilterProps) => {
   const d = useDispatch()
   const filter = useSelector((state: RootState) => selectFilter(state, bucket))
-
+  const settings = useSelector((state: RootState) => selectSettings(state, bucket))
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSubmit = useCallback(
     _.debounce((values: FilterType) => {
@@ -85,8 +84,8 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
           }
         })
       )
-    }, 1000),
-    []
+    }, Math.max(settings.autoSubmitDelay ?? 1500, 200)),
+    [settings.autoSubmitDelay]
   )
 
   return (

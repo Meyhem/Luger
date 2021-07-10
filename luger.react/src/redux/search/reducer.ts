@@ -17,6 +17,7 @@ export const bucketInitialState: BucketSearchState = {
   },
   settings: {
     columns: ['level', 'timestamp', 'labels', 'message'],
+    autoSubmitDelay: 1500,
     wide: false
   },
   loading: false,
