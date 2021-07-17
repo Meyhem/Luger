@@ -12,7 +12,7 @@ die () {
   exit 1
 }
 
-frontenddir="luger.react"
+frontenddir="Luger.React"
 backenddir="Luger.Api"
 packagedir="luger_package"
 
@@ -22,10 +22,10 @@ yarn --version || die "No yarn"
 
 stage "Prepare dirs"
 rm -rf $packagedir
-mkdir $packagedir
+mkdir -p $packagedir
 
 stage "Build backend"
-dotnet publish --output $packagedir $backenddir
+dotnet publish --output $packagedir $backenddir --configuration Release
 
 stage "Build frontend"
 yarn --cwd $frontenddir build

@@ -26,6 +26,8 @@ namespace Luger.Api.Features.Logging
 
         public async Task AddLogs(string bucket, IEnumerable<LogRecord> logs)
         {
+            if (!logs.Any()) return;
+
             var col = db.GetCollection<BsonDocument>(bucket);
 
             await col.InsertManyAsync(logs.Select(l => l.AsBsonDocument()));
@@ -90,7 +92,7 @@ namespace Luger.Api.Features.Logging
                     b.Id, 
                     new() 
                     {
-                        Capped =  b.MaxDocuments.HasValue || b.MaxSize.HasValue, 
+                        Capped = b.MaxDocuments.HasValue && b.MaxSize.HasValue, 
                         MaxDocuments = b.MaxDocuments, 
                         MaxSize = b.MaxSize
                     });

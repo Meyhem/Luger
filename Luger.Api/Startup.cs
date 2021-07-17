@@ -53,6 +53,7 @@ namespace Luger.Api
             services.AddScoped(di =>
             {
                 var opts = di.GetOptions<MongoOptions>();
+                
                 return new MongoClient(opts.Url);
             });
 
@@ -85,7 +86,7 @@ namespace Luger.Api
             app.UseCors(c => c.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             app.UseAuthentication();
             app.UseAuthorization();
-            
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();

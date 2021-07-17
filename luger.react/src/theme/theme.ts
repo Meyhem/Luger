@@ -53,6 +53,10 @@ export const GlobalStyle = createGlobalStyle`
   html {
     overflow-y: scroll;
   }
+
+  h1, h2, h3 {
+    font-weight: normal;
+  }
 `
 
 export function themeColor(color: Color): (p: ThemedStyledProps<unknown, DefaultTheme>) => string {
