@@ -6,10 +6,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using System;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -53,7 +55,7 @@ namespace Luger.Api
             services.AddScoped(di =>
             {
                 var opts = di.GetOptions<MongoOptions>();
-                
+
                 return new MongoClient(opts.Url);
             });
 
@@ -69,7 +71,7 @@ namespace Luger.Api
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             InitDb(app.ApplicationServices).Wait();
-
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

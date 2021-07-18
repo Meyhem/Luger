@@ -1,7 +1,3 @@
-## Development
+# Luger (Simple lightweight centralized logging)
 
-### Protobuf
-
-```sh
-protoc --csharp_out=Luger.Api/Features/Logging StoredLogRecord.proto
-```
+Docs are WIP

@@ -12,6 +12,6 @@ RUN yarn && yarn build
 FROM mcr.microsoft.com/dotnet/aspnet:5.0-alpine as runtime
 WORKDIR /luger
 COPY --from=dotnetbuild /build/backend/publish .
-COPY --from=reactbuild /build/frontend/build/* wwwroot/
+COPY --from=reactbuild /build/frontend/build wwwroot
 EXPOSE 80
 ENTRYPOINT [ "dotnet", "Luger.Api.dll" ]
