@@ -1,7 +1,7 @@
-﻿using Luger.LoggerProvider;
-using System;
+﻿using System;
+using Microsoft.Extensions.Logging;
 
-namespace Microsoft.Extensions.Logging
+namespace Luger.LoggerProvider
 {
     public static class LugerILoggingBuilderExtensions
     {

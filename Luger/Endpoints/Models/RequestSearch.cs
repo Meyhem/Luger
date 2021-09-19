@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Luger.Api.Endpoints.Models
+namespace Luger.Endpoints.Models
 {
     public class Label
     {

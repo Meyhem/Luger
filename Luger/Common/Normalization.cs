@@ -2,19 +2,13 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Luger.Api.Common
+namespace Luger.Common
 {
     public static class Normalization
     {
-        public static string NormalizeBucketName(string bucket)
-        {
-            return Regex.Replace(bucket.Trim().ToLower(), "[^a-z0-9]", "");
-        }
+        public static string NormalizeBucketName(string bucket) => Regex.Replace(bucket.Trim().ToLower(), "[^a-z0-9]", "");
 
-        public static string NormalizeLabelName(string label)
-        {
-            return Regex.Replace(label.Trim().ToLower(), "[^a-z0-9]", "");
-        }
+        public static string NormalizeLabelName(string label) => Regex.Replace(label.Trim().ToLower(), "[^a-z0-9]", "");
 
         public static Dictionary<string, string> NormalizeLogLabels(Dictionary<string, string> labels)
         {

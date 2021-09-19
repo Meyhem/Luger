@@ -6,3 +6,5 @@ wwwroot
 logs/
 .vs
 *.csproj.user
+.idea
+.vscode

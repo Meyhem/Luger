@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31402.337
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Luger.Api", "Luger.Api\Luger.Api.csproj", "{DADFC388-00E8-438F-8D0D-AF44333F5A81}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Luger", "Luger\Luger.csproj", "{DADFC388-00E8-438F-8D0D-AF44333F5A81}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Luger.LoggerProvider", "Luger.LoggerProvider\Luger.LoggerProvider.csproj", "{EF143C38-0168-41F4-83A9-9F05E5E08C7E}"
 EndProject
