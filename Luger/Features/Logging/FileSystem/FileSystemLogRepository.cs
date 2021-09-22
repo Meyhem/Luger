@@ -5,68 +5,108 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Luger.Common;
 using Luger.Features.Configuration;
+using Luger.Features.Logging.Dto;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Luger.Features.Logging.FileSystem
 {
-    using LogObject = Dictionary<string, object>;
-    
     public class FileSystemLogRepository : ILogRepository, IDisposable, IAsyncDisposable
     {
+        private readonly ILogger<FileSystemLogRepository> logger;
         private const string FileNameDateTimeFormat = "yyyy-MM-dd_hh-mm-ss";
 
         private readonly LugerOptions options;
-        private ConcurrentDictionary<string, ConcurrentQueue<LogObject>> bucketQueueMap;
-        private ConcurrentDictionary<string, FileStream?> bucketFileMap;
-        
         private readonly object writeLock;
-        private CancellationTokenSource cancellationTokenSource;
         private readonly Task backgroundFlushingTask;
 
-        public FileSystemLogRepository(IOptions<LugerOptions> options)
+        private ConcurrentDictionary<string, ConcurrentQueue<LogRecordDto>> bucketQueueMap;
+        private ConcurrentDictionary<string, FileStream?> bucketFileMap;
+        private CancellationTokenSource cancellationTokenSource;
+
+        public FileSystemLogRepository(IOptions<LugerOptions> options, ILogger<FileSystemLogRepository> logger)
         {
+            this.logger = logger;
             this.options = options.Value;
             cancellationTokenSource = new CancellationTokenSource();
-            bucketQueueMap = new ConcurrentDictionary<string, ConcurrentQueue<LogObject>>();
+            bucketQueueMap = new ConcurrentDictionary<string, ConcurrentQueue<LogRecordDto>>();
             bucketFileMap = new ConcurrentDictionary<string, FileStream?>();
-            
+
             foreach (var bucket in this.options.Buckets)
             {
-                bucketQueueMap[Normalization.NormalizeBucketName(bucket.Id)] = new ConcurrentQueue<LogObject>();
+                bucketQueueMap[Normalization.NormalizeBucketName(bucket.Id)] = new ConcurrentQueue<LogRecordDto>();
             }
-            
+
             writeLock = new object();
             backgroundFlushingTask = FlushingBackgroundTask(cancellationTokenSource.Token);
         }
 
-        public Task WriteLogs(string bucket, IEnumerable<Dictionary<string, object>> logs)
+        public Task WriteLogsAsync(string bucket, IEnumerable<LogRecordDto> logs)
         {
             var queue = bucketQueueMap[Normalization.NormalizeBucketName(bucket)];
-            
+
             foreach (var log in logs)
             {
                 queue.Enqueue(log);
             }
-            
+
             return Task.CompletedTask;
+        }
+
+        public async IAsyncEnumerable<LogRecordDto> ReadLogs(string bucket, DateTimeOffset start, DateTimeOffset end)
+        {
+            bucket = Normalization.NormalizeBucketName(bucket);
+            var bucketFolder = GetBucketFolder(bucket);
+
+            var filesToRead = Directory.GetFiles(bucketFolder)
+                .Select(path => (Path: path, Stamp: ParseLogFileNameStamp(path)))
+                .OrderBy(pathStampPair => pathStampPair.Stamp)
+                .Where(pathStampPair => pathStampPair.Stamp >= start && pathStampPair.Stamp <= end)
+                .Select(pathStampPair => pathStampPair.Path);
+
+            foreach (var file in filesToRead)
+            {
+                logger.LogInformation("Reading file {File}", file);
+                
+                await using var fileStream = OpenLogFileRead(bucket, Path.GetFileName(file));
+                var logStream = ReadLog(fileStream);
+                using var logStreamEnumerator = logStream.GetEnumerator();
+                
+                for (;;)
+                {
+                    try
+                    {
+                        var hasNext = logStreamEnumerator.MoveNext();
+                        if (!hasNext) break;
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Error reading file {File}", file);
+                        break;
+                    }
+
+                    yield return logStreamEnumerator.Current;
+                }
+            }
         }
 
         public async Task FlushAsync()
         {
-            var bucketLogsMap = new Dictionary<string, LogObject[]>();
-            
+            var bucketLogsMap = new Dictionary<string, LogRecordDto[]>();
+
             lock (writeLock)
             {
                 foreach (var (bucket, queue) in bucketQueueMap)
                 {
                     bucketLogsMap[bucket] = queue.ToArray();
                     queue.Clear();
-                }    
+                }
             }
 
             var bucketWriteTasks = bucketLogsMap.Select(async bucketLogPair =>
@@ -74,19 +114,46 @@ namespace Luger.Features.Logging.FileSystem
                 var stream = await GetBucketStreamAsync(bucketLogPair.Key);
                 foreach (var log in bucketLogsMap[bucketLogPair.Key])
                 {
-                    var jsonString = JsonSerializer.Serialize(log, new JsonSerializerOptions
-                    {
-                        WriteIndented = false,
-                        IgnoreNullValues = true
-                    });
+                    var jsonString = JsonConvert.SerializeObject(log, Formatting.None);
 
                     await stream.WriteAsync(Encoding.UTF8.GetBytes(jsonString));
+                    await stream.WriteAsync(Encoding.UTF8.GetBytes("\r\n"));
                 }
 
                 await stream.FlushAsync();
             });
 
             await Task.WhenAll(bucketWriteTasks);
+        }
+
+        private IEnumerable<LogRecordDto> ReadLog(Stream stream)
+        {
+            var serializer = new JsonSerializer();
+            
+            using var streamReader = new StreamReader(stream);
+            using var jsonReader = new JsonTextReader(streamReader);
+            jsonReader.SupportMultipleContent = true;
+            
+            while (jsonReader.Read())
+            {
+                if (jsonReader.TokenType == JsonToken.StartObject)
+                {
+                    LogRecordDto? log = null;
+                    try
+                    {
+                        log = serializer.Deserialize<LogRecordDto>(jsonReader);
+                    }
+                    catch (Exception e)
+                    {
+                        logger.LogWarning("Corrupted log record on line {Line}. {Exception}",
+                            jsonReader.LinePosition,
+                            e);
+                        continue;
+                    }
+                    
+                    if (log is not null) yield return log;
+                }
+            }
         }
 
         private async Task FlushingBackgroundTask(CancellationToken cancellationToken)
@@ -98,11 +165,11 @@ namespace Luger.Features.Logging.FileSystem
                 await FlushAsync();
             }
         }
-        
+
         private async Task<Stream> GetBucketStreamAsync(string bucket)
         {
             bucket = Normalization.NormalizeBucketName(bucket);
-            
+
             bucketFileMap.TryGetValue(bucket, out var stream);
 
             if (stream is not null)
@@ -116,37 +183,54 @@ namespace Luger.Features.Logging.FileSystem
                     stream = null;
                 }
             }
-            
+
             if (stream is null)
             {
-                stream = OpenLogFile(bucket);
+                stream = OpenLogFileWrite(bucket);
                 bucketFileMap[bucket] = stream;
             }
 
             return stream;
         }
 
-        private FileStream OpenLogFile(string bucket)
+        private FileStream OpenLogFileWrite(string bucket)
         {
             bucket = Normalization.NormalizeBucketName(bucket);
-            var path = Path.Join(options.StorageDirectory, bucket, CreateLogFileName());
-            Directory.CreateDirectory(Path.GetDirectoryName(path));
-            
-            return new FileStream(path: path,
+            var path = Path.Join(GetBucketFolder(bucket), CreateLogFileName());
+            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+
+            return new FileStream(
+                path: path,
                 mode: FileMode.Create,
                 access: FileAccess.Write,
                 share: FileShare.Read | FileShare.Delete,
-                bufferSize: 262144); // 256k
+                bufferSize: 262144 // 256k
+            );
         }
 
-        private static string CreateLogFileName()
+        private FileStream OpenLogFileRead(string bucket, string fileName)
         {
-            return $"{DateTimeOffset.UtcNow.ToString(FileNameDateTimeFormat)}.json";
+            bucket = Normalization.NormalizeBucketName(bucket);
+            var path = Path.Join(GetBucketFolder(bucket), fileName);
+
+            return new FileStream(
+                path: path,
+                mode: FileMode.Open,
+                access: FileAccess.Read,
+                share: FileShare.Read | FileShare.Write,
+                bufferSize: 262144 // 256k
+            );
         }
+
+        private string GetBucketFolder(string bucket) =>
+            Path.Join(options.StorageDirectory,
+                Normalization.NormalizeBucketName(bucket));
+
+        private static string CreateLogFileName() => $"{DateTimeOffset.UtcNow.ToString(FileNameDateTimeFormat)}.json";
 
         private static DateTimeOffset ParseLogFileNameStamp(string fileName)
         {
-            if (DateTimeOffset.TryParseExact(fileName,
+            if (DateTimeOffset.TryParseExact( Path.GetFileNameWithoutExtension(fileName),
                 FileNameDateTimeFormat,
                 CultureInfo.InvariantCulture,
                 DateTimeStyles.AssumeUniversal,
@@ -154,7 +238,7 @@ namespace Luger.Features.Logging.FileSystem
             {
                 return timestamp;
             }
-            
+
             return DateTimeOffset.MinValue;
         }
 
@@ -167,7 +251,7 @@ namespace Luger.Features.Logging.FileSystem
         {
             cancellationTokenSource.Cancel();
             await backgroundFlushingTask;
-            
+
             foreach (var (bucket, file) in bucketFileMap)
             {
                 if (file is null) continue;

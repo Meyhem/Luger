@@ -12,7 +12,7 @@ namespace Luger
                 .ConfigureLogging(logging =>
                 {
                     logging.ClearProviders();
-                    logging.AddConsole();
+                    logging.AddSimpleConsole(c => c.SingleLine = true);
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

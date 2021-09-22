@@ -27,15 +27,20 @@ namespace Luger.Endpoints
         [Consumes("application/json")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> CollectAsync([FromRoute] string bucket, [FromBody] Dictionary<string, string>[]? logRequests)
+        public async Task<IActionResult> CollectAsync([FromRoute] string bucket,
+            [FromBody] Dictionary<string, string>[]? logs)
         {
-            logRequests ??= Array.Empty<Dictionary<string, string>>();
-            if (options.Buckets.All(b => Normalization.NormalizeBucketName(b.Id) != Normalization.NormalizeBucketName(bucket)))
+            logs ??= Array.Empty<Dictionary<string, string>>();
+            if (options.Buckets.All(b =>
+                Normalization.NormalizeBucketName(b.Id) != Normalization.NormalizeBucketName(bucket)))
             {
                 return Problem(detail: "No such bucket", statusCode: 404);
-            }            
+            }
 
-            await service.AddLogs(Normalization.NormalizeBucketName(bucket), logRequests);
+            await service.AddLogsAsync(
+                Normalization.NormalizeBucketName(bucket),
+                logs.Select(l => LogRecordDto.FromMap(l, DateTimeOffset.UtcNow))
+            );
 
             return NoContent();
         }

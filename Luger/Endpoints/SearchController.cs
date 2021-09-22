@@ -1,15 +1,18 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Luger.Common;
 using Luger.Endpoints.Models;
 using Luger.Features.Logging;
 using Luger.Features.Logging.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Luger.Endpoints
 {
     [Route("api/[controller]")]
-    [Authorize]
+    // [Authorize]
     public class SearchController : Controller
     {
         private readonly ILogService logService;
@@ -20,26 +23,33 @@ namespace Luger.Endpoints
         }
 
         [HttpPost("{bucket}")]
-        public async Task<ResponseSearch> GetAsync([FromRoute] string bucket, [FromBody] RequestSearch searchRequest)
+        [ProducesResponseType(typeof(ResponseSearch), 200)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        public async Task<IActionResult> GetAsync([FromRoute] string bucket, [FromBody] RequestSearch searchRequest)
         {
+
+            if (!ModelState.IsValid) return ModelState.ToProblemResult();
+            
+            searchRequest ??= new RequestSearch();
+            
             var labelsDto = searchRequest.Labels
-                .Where(l => !string.IsNullOrWhiteSpace(l.Name) && !string.IsNullOrWhiteSpace(l.Value))
+                .Where(l => !string.IsNullOrWhiteSpace(l.Name) || !string.IsNullOrWhiteSpace(l.Value))
                 .Select(l => new LabelDto
                 {
                     Name = l.Name!,
                     Value = l.Value!
                 });
 
-            var logs = await logService.QueryLogs(bucket,
+            var logs = logService.QueryLogsAsync(bucket,
                 searchRequest.From,
                 searchRequest.To,
-                searchRequest.Levels,
+                searchRequest.Levels.Select(Enum.Parse<LogLevel>).ToArray(),
                 searchRequest.Message,
-                labelsDto,
+                labelsDto.ToArray(),
                 searchRequest.Page,
                 searchRequest.PageSize);
-
-            return new ResponseSearch {Logs = logs};
+            
+            return Ok(new ResponseSearch {Logs = await logs.ToArrayAsync()});
         }
     }
 }

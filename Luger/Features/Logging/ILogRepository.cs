@@ -1,10 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Luger.Features.Logging.Dto;
+
 namespace Luger.Features.Logging
 {
     public interface ILogRepository
     {
-        Task WriteLogs(string bucket, IEnumerable<Dictionary<string, object>> logs);
+        Task WriteLogsAsync(string bucket, IEnumerable<LogRecordDto> logs);
         Task FlushAsync();
+        IAsyncEnumerable<LogRecordDto> ReadLogs(string bucket, DateTimeOffset start, DateTimeOffset end);
     }
 }
