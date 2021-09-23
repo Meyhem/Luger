@@ -1,4 +1,3 @@
-import { AxiosResponse } from 'axios'
 
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
 
@@ -12,12 +11,12 @@ export type Dictionary<T> = {
 
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
-    ? Array<DeepPartial<U>>
-    : T[P] extends ReadonlyArray<infer U>
-    ? ReadonlyArray<DeepPartial<U>>
-    : T[P] extends Dictionary<infer V>
-    ? Dictionary<V>
-    : DeepPartial<T[P]>
+  ? Array<DeepPartial<U>>
+  : T[P] extends ReadonlyArray<infer U>
+  ? ReadonlyArray<DeepPartial<U>>
+  : T[P] extends Dictionary<infer V>
+  ? Dictionary<V>
+  : DeepPartial<T[P]>
 }
 
 export type Error = {
@@ -45,6 +44,3 @@ export interface Callable<R> {
 export type GenericReturnType<R, X> = X extends Callable<R> ? R : never
 
 export type ApiError = { errorMessage: string; genericDescription: string; errorCode: string; stack: string }
-export type ApiResponse<T> = { data: T; error: ApiError }
-
-export type AxiosApiResponse<T> = AxiosResponse<ApiResponse<T>>

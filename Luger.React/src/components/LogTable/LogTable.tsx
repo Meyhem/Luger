@@ -9,14 +9,13 @@ import { RootState } from '../../redux/types'
 import { themeColor } from '../../theme'
 
 const levelColorMap: Record<LogLevel, [string, string]> = {
+  Trace: ['#FFFFFF', '#9b9b9b'],
   Debug: ['#FFFFFF', '#9b9b9b'],
-  Verbose: ['#FFFFFF', '#9b9b9b'],
-  Info: ['#a0a0ff', '#000000'],
+  Information: ['#a0a0ff', '#000000'],
   Warning: ['#ff8300', '#000000'],
   Error: ['#ff6363', '#000000'],
   Critical: ['#ff2929', '#000000'],
-  Fatal: ['#ff2929', '#000000'],
-  Unknown: ['#AAAAAA', '#000000']
+  None: ['#AAAAAA', '#000000']
 }
 
 type LogTableProps = {
@@ -42,7 +41,7 @@ const LogCell = css`
 
 const LogCellLevel = styled.td<{ level: LogLevel }>`
   ${LogCell};
-  width: 90px;
+  width: 110px;
   vertical-align: top;
   font-weight: bold;
   color: ${({ level }) => levelColorMap[level][1]};

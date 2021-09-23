@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react'
 import { Field } from 'react-final-form'
 import styled from 'styled-components/macro'
-import { required } from '../../form/validation'
 import { Button } from '../Button'
 import { FormControl } from '../FormControl'
 import { Input } from '../Input'
@@ -24,7 +23,7 @@ export const LabelFilterField = ({ name, id, onDelete }: LabelFilterProps) => {
   return (
     <LabelFilterContainer>
       <Field
-        validate={required()}
+        // validate={required()}
         name={`${name}.name`}
         render={p => <FormControl {...p} component={Input} placeholder="Label" errorStateIndependent={true} />}
       />

@@ -30,14 +30,13 @@ export type BucketSearchState = {
 } & LoadingState
 
 export enum LogLevel {
+  Trace = 'Trace',
   Debug = 'Debug',
-  Verbose = 'Verbose',
-  Info = 'Info',
+  Information = 'Information',
   Warning = 'Warning',
   Error = 'Error',
   Critical = 'Critical',
-  Fatal = 'Fatal',
-  Unknown = 'Unknown'
+  None = 'None'
 }
 
 export type LogRecord = {

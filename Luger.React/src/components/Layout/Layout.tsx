@@ -72,7 +72,7 @@ export const Layout: FC<LayoutProps> = ({ children, heading }) => {
         <SiderItem>
           <Flex justifyContent="space-between">
             <Link to={Routes.Dashboard}>
-              <Text fontSize="24px">Lugᛊᚱ</Text>
+              <Text fontSize="24px">Luger</Text>
             </Link>
 
             <Button variant="transparent" onClick={logout}>

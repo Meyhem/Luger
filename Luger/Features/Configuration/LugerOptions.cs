@@ -14,7 +14,8 @@ namespace Luger.Features.Configuration
     {
         public string Issuer { get; set; } = "Luger";
         public string Audience { get; set; } = "Luger";
-        public string SigningKey { get; set; } 
+        public string SigningKey { get; set; }
+        public int ExpiresSeconds { get; set; } = 3600;
     }
     
     public class BucketOptions

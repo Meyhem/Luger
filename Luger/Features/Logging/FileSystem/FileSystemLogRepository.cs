@@ -13,14 +13,13 @@ using Luger.Features.Logging.Dto;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Luger.Features.Logging.FileSystem
 {
     public class FileSystemLogRepository : ILogRepository, IDisposable, IAsyncDisposable
     {
         private readonly ILogger<FileSystemLogRepository> logger;
-        private const string FileNameDateTimeFormat = "yyyy-MM-dd_hh-mm-ss";
+        private const string FileNameDateTimeFormat = "yyyy-MM-dd_HH-mm-ss";
 
         private readonly LugerOptions options;
         private readonly object writeLock;
@@ -176,7 +175,7 @@ namespace Luger.Features.Logging.FileSystem
             {
                 var logFileName = Path.GetFileName(stream.Name);
                 var fileNameStamp = ParseLogFileNameStamp(logFileName);
-                if (fileNameStamp.Add(TimeSpan.FromHours(1)) > DateTimeOffset.UtcNow)
+                if (fileNameStamp.Add(TimeSpan.FromHours(1)) < DateTimeOffset.UtcNow)
                 {
                     stream.Close();
                     await stream.DisposeAsync();

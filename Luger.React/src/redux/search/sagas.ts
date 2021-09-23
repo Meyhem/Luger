@@ -1,8 +1,8 @@
+import { AxiosResponse } from 'axios'
 import _ from 'lodash'
 import { all, put, select, takeLatest } from 'redux-saga/effects'
 import { getType } from 'typesafe-actions'
 import { apiCall } from '../../utils/api'
-import { AxiosApiResponse } from '../../utils/types'
 import { SearchActions } from './actions'
 import { selectFilter } from './selectors'
 import { Filter, LogLevel, LogRecord } from './types'
@@ -16,7 +16,7 @@ export type LogRecordResponse = {
 
 export function mapLogRecordResponse(logs: LogRecordResponse[]): LogRecord[] {
   return _.map(logs, l => ({
-    level: _.includes(_.values(LogLevel), l.level) ? (l.level as LogLevel) : LogLevel.Unknown,
+    level: _.includes(_.values(LogLevel), l.level) ? (l.level as LogLevel) : LogLevel.None,
     timestamp: new Date(l.timestamp),
     message: l.message || '',
     labels: l.labels ?? {}
@@ -26,13 +26,13 @@ export function mapLogRecordResponse(logs: LogRecordResponse[]): LogRecord[] {
 export function* load({ payload }: ReturnType<typeof SearchActions.load>) {
   const filters: Filter = yield select(state => selectFilter(state, payload.bucket))
 
-  const response: AxiosApiResponse<{ logs: LogRecordResponse[] }> = yield apiCall({
+  const response: AxiosResponse<{ logs: LogRecordResponse[] }> = yield apiCall({
     method: 'post',
     url: `/api/search/${payload.bucket}`,
-    data: { ...filters, labels: _.filter(filters.labels, 'name') }
+    data: { ...filters }
   })
 
-  yield put(SearchActions.setLogs({ bucket: payload.bucket, logs: mapLogRecordResponse(response.data.data.logs) }))
+  yield put(SearchActions.setLogs({ bucket: payload.bucket, logs: mapLogRecordResponse(response.data.logs) }))
 }
 
 export function* reload({ payload }: ReturnType<typeof SearchActions.setFilter>) {

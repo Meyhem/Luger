@@ -36,10 +36,10 @@ namespace Luger.Features.Logging
             int pageSize)
         {
             bucket = Normalization.NormalizeBucketName(bucket);
-            
+
             var toSkip = pageSize * page;
             var nlog = 0;
-            
+
             await foreach (var log in logRepository.ReadLogs(bucket, from, to))
             {
                 var isMatch = MatchesLevels(log, levels) ||
@@ -49,30 +49,42 @@ namespace Luger.Features.Logging
                 if (!isMatch) continue;
                 nlog++;
                 if (nlog < toSkip) continue;
-                
+
                 yield return log;
             }
         }
 
         private bool MatchesLevels(LogRecordDto log, LogLevel[]? levels)
         {
-            return !levels.IsNullOrEmpty() && levels.Contains(log.Level);
+            return !levels.IsNullOrEmpty() && levels!.Contains(log.Level);
         }
-        
+
         private bool MatchesMessage(LogRecordDto log, string message)
         {
             var logMessage = log.Message ?? string.Empty;
 
-            return !string.IsNullOrEmpty(message) && 
+            return !string.IsNullOrEmpty(message) &&
                    logMessage.Contains(message);
         }
 
         private bool MatchesLabels(LogRecordDto log, LabelDto[] labels)
         {
-            return labels.IsNullOrEmpty() || 
-                   labels.Any(l =>
-                    log.Labels.Any(logLabel =>
-                            logLabel.Key == l.Name || logLabel.Value.ToString()!.Contains(l.Value)));
+            return labels.IsNullOrEmpty() ||
+                   labels.Any(queriedLabel =>
+                       log.Labels.Any(logLabel =>
+                           !string.IsNullOrWhiteSpace(queriedLabel.Name) &&
+                           !string.IsNullOrWhiteSpace(queriedLabel.Value) &&
+                           logLabel.Key == queriedLabel.Name &&
+                           logLabel.Value.ToString() == queriedLabel.Value
+                           ||
+                           string.IsNullOrWhiteSpace(queriedLabel.Name) &&
+                           !string.IsNullOrWhiteSpace(queriedLabel.Value) &&
+                           logLabel.Value.ToString() == queriedLabel.Value
+                           ||
+                           !string.IsNullOrWhiteSpace(queriedLabel.Name) &&
+                           string.IsNullOrWhiteSpace(queriedLabel.Value) &&
+                           logLabel.Key == queriedLabel.Name
+                       ));
         }
     }
 }

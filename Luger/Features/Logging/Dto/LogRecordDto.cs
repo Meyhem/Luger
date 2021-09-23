@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace Luger.Features.Logging.Dto
 {
@@ -12,17 +10,17 @@ namespace Luger.Features.Logging.Dto
         public const string TimestampField = "@t";
         public const string MessageField = "@m";
         public const string LevelField = "@l";
-        public const string LabelsField = "@labels";
 
-        [JsonProperty(LevelField)]
-        [JsonConverter(typeof(StringEnumConverter))]
+        [Newtonsoft.Json.JsonProperty(LevelField)]
+        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
         public LogLevel Level { get; set; }
 
-        [JsonProperty(TimestampField)] public DateTimeOffset Timestamp { get; set; }
+        [Newtonsoft.Json.JsonProperty(TimestampField)] public DateTimeOffset Timestamp { get; set; }
 
-        [JsonProperty(MessageField)] public string Message { get; set; } = string.Empty;
+        [Newtonsoft.Json.JsonProperty(MessageField)] public string Message { get; set; } = string.Empty;
 
-        [JsonExtensionData] public Dictionary<string, object> Labels { get; set; } = new();
+        [Newtonsoft.Json.JsonExtensionData] public Dictionary<string, object> Labels { get; set; } = new();
 
         public static LogRecordDto FromMap(Dictionary<string, string> map, DateTimeOffset time)
         {

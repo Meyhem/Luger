@@ -1,11 +1,10 @@
 import { notification } from 'antd'
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import { push } from 'connected-react-router'
 import dayjs from 'dayjs'
 import { all, delay, put, select, takeLatest } from 'redux-saga/effects'
 import { getType } from 'typesafe-actions'
 import { Routes } from '../../utils/routes'
-import { AxiosApiResponse } from '../../utils/types'
 import { loadingCall } from '../loading'
 import { AuthActions } from './actions'
 import { getExpiration, hasToken } from './selectors'
@@ -38,22 +37,22 @@ export function* watchToken() {
 }
 
 export function* requestToken(userId: string, password: string) {
-  const resp: AxiosApiResponse<any> = yield loadingCall(AuthActions, axios, {
+  const resp: AxiosResponse<any> = yield loadingCall(AuthActions, axios, {
     method: 'post',
-    url: '/api/user/token',
+    url: '/api/authentication/token',
     data: { userId, password }
   })
 
-  yield put(AuthActions.setToken({ token: resp.data.data.token }))
+  yield put(AuthActions.setToken({ token: resp.data.token }))
 }
 
 export function* refreshToken() {
-  const resp: AxiosApiResponse<any> = yield loadingCall(AuthActions, axios, {
+  const resp: AxiosResponse<any> = yield loadingCall(AuthActions, axios, {
     method: 'post',
-    url: '/api/user/token/refresh'
+    url: '/api/authentication/token/refresh'
   })
 
-  yield put(AuthActions.setToken({ token: resp.data.data.token }))
+  yield put(AuthActions.setToken({ token: resp.data.token }))
 }
 
 export function* logout() {

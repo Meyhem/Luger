@@ -36,7 +36,7 @@ namespace Luger.Endpoints
         public IActionResult SignIn([FromBody] RequestCreateToken model)
         {
             logger.LogInformation("Signin attempt {UserId}", model.UserId);
-            
+
             var user = lugerOptions.Users
                 .FirstOrDefault(u => u.Id == model.UserId && u.Password == model.Password);
 
@@ -78,8 +78,9 @@ namespace Luger.Endpoints
             var key = Encoding.UTF8.GetBytes(jwtOptions.SigningKey);
             var tok = tokenFactory.CreateToken(new SecurityTokenDescriptor
             {
-
-                Expires = DateTime.UtcNow.AddMinutes(1),
+                Audience = jwtOptions.Audience,
+                Issuer = jwtOptions.Issuer,
+                Expires = DateTime.UtcNow.AddSeconds(jwtOptions.ExpiresSeconds),
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new(ClaimTypes.Name, user.Id),
