@@ -113,7 +113,8 @@ export const LogTable = ({ bucket }: LogTableProps) => {
             <LogCellLevel level={record.level}>{record.level}</LogCellLevel>
             <LogCellTime>
               <div>
-                {dayjs(record.timestamp).format('YYYY-MM-DD')} <b>{dayjs(record.timestamp).format('HH:mm:ss')}</b>
+                {dayjs(record.timestamp).utc().format('YYYY-MM-DD')}{' '}
+                <b>{dayjs(record.timestamp).utc().format('HH:mm:ss')}</b>
               </div>
             </LogCellTime>
             <LogCellLabels wide={settings.wide}>

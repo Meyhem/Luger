@@ -171,31 +171,11 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
                   />
                 </Section>
 
-                <Section width="44%">
+                <Section width="50%">
                   <Field
                     name="message"
                     render={p => <FormControl {...p} label="Message (regex)" component={Input} size="middle" />}
                   />
-                </Section>
-                <Section width="6%" alignItems="flex-end" fontSize="30px">
-                  <HelpIconTooltip
-                    placement="bottom"
-                    title={
-                      <span>
-                        Specify regular expression that matches log message
-                        <br />
-                        Examples:
-                        <br />
-                        1. Registration failed, correlation id=\d+
-                        <br />
-                        2. userid=(100|200)
-                        <br />
-                        3. /cAsE InSeNsItIVe/i
-                      </span>
-                    }
-                  >
-                    🛈
-                  </HelpIconTooltip>
                 </Section>
 
                 <Section width="50%" alignItems="center">

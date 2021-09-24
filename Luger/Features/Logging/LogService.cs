@@ -42,9 +42,12 @@ namespace Luger.Features.Logging
 
             await foreach (var log in logRepository.ReadLogs(bucket, from, to))
             {
-                var isMatch = MatchesLevels(log, levels) ||
-                              MatchesMessage(log, message) ||
-                              MatchesLabels(log, labels);
+                var isMatch = MatchesTimestampRange(log, from, to) &&
+                              (
+                                  (levels.IsNullOrEmpty() || MatchesLevels(log, levels)) &&
+                                  (string.IsNullOrEmpty(message) || MatchesMessage(log, message)) &&
+                                  (labels.IsNullOrEmpty() || MatchesLabels(log, labels))
+                              );
 
                 if (!isMatch) continue;
                 nlog++;
@@ -54,23 +57,26 @@ namespace Luger.Features.Logging
             }
         }
 
-        private bool MatchesLevels(LogRecordDto log, LogLevel[]? levels)
+        private bool MatchesTimestampRange(LogRecordDto log, DateTimeOffset from, DateTimeOffset to)
         {
-            return !levels.IsNullOrEmpty() && levels!.Contains(log.Level);
+            return log.Timestamp >= from && log.Timestamp <= to;
+        }
+
+        private bool MatchesLevels(LogRecordDto log, LogLevel[] levels)
+        {
+            return levels.Contains(log.Level);
         }
 
         private bool MatchesMessage(LogRecordDto log, string message)
         {
             var logMessage = log.Message ?? string.Empty;
 
-            return !string.IsNullOrEmpty(message) &&
-                   logMessage.Contains(message);
+            return logMessage.Contains(message, StringComparison.InvariantCultureIgnoreCase);
         }
 
         private bool MatchesLabels(LogRecordDto log, LabelDto[] labels)
         {
-            return labels.IsNullOrEmpty() ||
-                   labels.Any(queriedLabel =>
+            return labels.Any(queriedLabel =>
                        log.Labels.Any(logLabel =>
                            !string.IsNullOrWhiteSpace(queriedLabel.Name) &&
                            !string.IsNullOrWhiteSpace(queriedLabel.Value) &&
