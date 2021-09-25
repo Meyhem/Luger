@@ -36,6 +36,18 @@ jobs:
         with:
           cmd: install --cwd Luger.React
          
+      - name: Build Backend
+        run: dotnet publish ./Luger/Luger.csproj -c Release --self-contained -r win-x64 -p:PublishSingleFile=true -o Luger-bin
+        
+      - name: Build Frontend
+        uses: Borales/actions-yarn@v2.3.0
+        with:
+          cmd: build --cwd Luger.React
           
+      - name: Copy Frontend binaries to wwwroot
+        run: cp -R Luger.React/build Luger-bin/wwwroot
       
-     
+            
+      
+      
+      
