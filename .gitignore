@@ -8,3 +8,4 @@ logs/
 *.csproj.user
 .idea
 .vscode
+github_release_assets

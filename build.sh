@@ -13,7 +13,7 @@ die () {
 }
 
 frontenddir="Luger.React"
-backenddir="Luger.Api"
+backenddir="Luger"
 packagedir="luger_package"
 
 stage "Tools check"

@@ -5,8 +5,8 @@ namespace Luger.LoggerProvider
 {
     public class LugerLogOptions
     {
-        public Uri LugerUrl { get; set; }
-        public string Bucket { get; set; }
+        public Uri LugerUrl { get; set; } = default!;
+        public string Bucket { get; set; } = default!;
         public TimeSpan BatchPostInterval { get; set; } = TimeSpan.FromSeconds(3);
 
         public int MaxConnectionsPerServer { get; set; } = 3;

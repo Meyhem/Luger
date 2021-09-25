@@ -8,7 +8,8 @@ namespace Luger.LoggerProvider
     {
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public LogLevel Level { get; set; }
-        public string Message { get; set; }
-        public Dictionary<string, string> Labels { get; set; }
+
+        public string Message { get; set; } = default!;
+        public Dictionary<string, string> Labels { get; set; } = new();
     }
 }

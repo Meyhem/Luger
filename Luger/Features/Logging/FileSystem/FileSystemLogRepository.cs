@@ -62,6 +62,8 @@ namespace Luger.Features.Logging.FileSystem
         {
             bucket = Normalization.NormalizeBucketName(bucket);
             var bucketFolder = GetBucketFolder(bucket);
+            
+            if (!Directory.Exists(bucketFolder)) yield break;
 
             var filesToRead = Directory.GetFiles(bucketFolder)
                 .Select(path => (Path: path, Stamp: ParseLogFileNameStamp(path)))
@@ -95,6 +97,7 @@ namespace Luger.Features.Logging.FileSystem
             }
         }
 
+        
         public async Task FlushAsync()
         {
             var bucketLogsMap = new Dictionary<string, LogRecordDto[]>();
@@ -127,11 +130,12 @@ namespace Luger.Features.Logging.FileSystem
 
         private void DeleteExpiredFiles(BucketOptions bucketOptions)
         {
-            if (bucketOptions.MaxRetentionHours < 1) return;
-            
             var bucket = Normalization.NormalizeBucketName(bucketOptions.Id);
             var bucketFolder = GetBucketFolder(bucket);
             var now = DateTimeOffset.UtcNow;
+            
+            if (bucketOptions.MaxRetentionHours < 1) return;
+            if (!Directory.Exists(bucketFolder)) return;
 
             var expiredFiles = Directory.GetFiles(bucketFolder)
                 .Select(path => (Path: path, Stamp: ParseLogFileNameStamp(path)))
@@ -186,12 +190,19 @@ namespace Luger.Features.Logging.FileSystem
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                var flushDelaySeconds = options.FlushIntervalSeconds == 0 ? 5 : options.FlushIntervalSeconds;
-                await Task.Delay(TimeSpan.FromSeconds(flushDelaySeconds), cancellationToken);
+                try
+                {
+                    var flushDelaySeconds = options.FlushIntervalSeconds == 0 ? 5 : options.FlushIntervalSeconds;
+                    await Task.Delay(TimeSpan.FromSeconds(flushDelaySeconds), cancellationToken);
 
-                foreach (var bucketOptions in options.Buckets) DeleteExpiredFiles(bucketOptions);
-                
-                await FlushAsync();
+                    foreach (var bucketOptions in options.Buckets) DeleteExpiredFiles(bucketOptions);
+
+                    await FlushAsync();
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Flush task failed");
+                }
             }
         }
 
