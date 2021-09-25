@@ -125,6 +125,33 @@ namespace Luger.Features.Logging.FileSystem
             await Task.WhenAll(bucketWriteTasks);
         }
 
+        private void DeleteExpiredFiles(BucketOptions bucketOptions)
+        {
+            if (bucketOptions.MaxRetentionHours < 1) return;
+            
+            var bucket = Normalization.NormalizeBucketName(bucketOptions.Id);
+            var bucketFolder = GetBucketFolder(bucket);
+            var now = DateTimeOffset.UtcNow;
+
+            var expiredFiles = Directory.GetFiles(bucketFolder)
+                .Select(path => (Path: path, Stamp: ParseLogFileNameStamp(path)))
+                .Where(pathStampPair => 
+                    pathStampPair.Stamp.Add(TimeSpan.FromHours(bucketOptions.MaxRetentionHours)) < now)
+                .Select(pathStampPair => pathStampPair.Path);
+
+            foreach (var file in expiredFiles)
+            {
+                try
+                {
+                    File.Delete(file);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Unable to delete file {Path}", file);
+                }
+            }
+        }
+        
         private IEnumerable<LogRecordDto> ReadLog(Stream stream)
         {
             var serializer = new JsonSerializer();
@@ -161,6 +188,9 @@ namespace Luger.Features.Logging.FileSystem
             {
                 var flushDelaySeconds = options.FlushIntervalSeconds == 0 ? 5 : options.FlushIntervalSeconds;
                 await Task.Delay(TimeSpan.FromSeconds(flushDelaySeconds), cancellationToken);
+
+                foreach (var bucketOptions in options.Buckets) DeleteExpiredFiles(bucketOptions);
+                
                 await FlushAsync();
             }
         }

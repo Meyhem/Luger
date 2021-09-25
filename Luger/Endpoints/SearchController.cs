@@ -5,7 +5,6 @@ using Luger.Common;
 using Luger.Endpoints.Models;
 using Luger.Features.Logging;
 using Luger.Features.Logging.Dto;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 

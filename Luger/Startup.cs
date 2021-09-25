@@ -1,6 +1,8 @@
 using System;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Luger.Common;
 using Luger.Features.Configuration;
 using Luger.Features.Logging;
 using Luger.Features.Logging.FileSystem;
@@ -10,7 +12,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Luger
@@ -51,14 +52,10 @@ namespace Luger
                 });
         }
 
-
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
+            AssertConfigurationValid(app.ApplicationServices);
+            
             app.UseSwagger();
             app.UseSwaggerUI(config =>
             {
@@ -91,6 +88,32 @@ namespace Luger
             var options = optionsSection.Get<TOptions>();
 
             return options;
+        }
+
+        private void AssertConfigurationValid(IServiceProvider di)
+        {
+            var lugerOptions = Configuration.GetSection("Luger").Get<LugerOptions>();
+
+            if (lugerOptions.Buckets.IsNullOrEmpty())
+            {
+                throw new ArgumentException(
+                    "No buckets configured in json config. Configure at least one bucket in section \"Luger.Buckets\"");
+            }
+
+            foreach (var bucket in lugerOptions.Buckets)
+            {
+                if (!Regex.IsMatch(bucket.Id, "^[a-z0-9-_]+$"))
+                {
+                    throw new ArgumentException(
+                        $"Bucket Id \"{bucket.Id}\" is invalid. Bucket Id may contain only lower case alphanumeric letters, dashes and underscores.");
+                }
+            }
+
+            if (lugerOptions.Users.IsNullOrEmpty())
+            {
+                throw new ArgumentException(
+                    "No users configured in json config. Configure at least one bucket in section \"Luger.Users\"");
+            }
         }
     }
 }

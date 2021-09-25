@@ -21,6 +21,7 @@ namespace Luger.Features.Configuration
     public class BucketOptions
     {
         public string Id { get; set; }
+        public int MaxRetentionHours { get; set; } = 0;
     }
 
     public class UserOptions

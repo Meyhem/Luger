@@ -1,4 +1,4 @@
-import { Menu, Tooltip } from 'antd'
+import { Menu } from 'antd'
 import dayjs, { Dayjs, OpUnitType } from 'dayjs'
 import arrayMutators from 'final-form-arrays'
 import _ from 'lodash'
@@ -42,14 +42,14 @@ const CenteredInput = styled(Input)`
   text-align: center;
 `
 
-const HelpIconTooltip = styled(Tooltip)`
-  display: flex;
-  align-items: center;
-  font-size: 30px;
-  color: ${themeColor('primary')};
-  cursor: pointer;
-  height: 40px;
-`
+// const HelpIconTooltip = styled(Tooltip)`
+//   display: flex;
+//   align-items: center;
+//   font-size: 30px;
+//   color: ${themeColor('primary')};
+//   cursor: pointer;
+//   height: 40px;
+// `
 
 type LocalLabelFilter = { id: string } & LabelFilter
 
