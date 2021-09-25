@@ -34,7 +34,7 @@ jobs:
       - name: GitHub Action for Yarn
         uses: Borales/actions-yarn@v2.3.0
         with:
-          cmd: install
+          cmd: install --cwd Luger.React
          
           
       
