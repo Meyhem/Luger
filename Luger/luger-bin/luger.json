@@ -1,0 +1,19 @@
+{
+  "Urls": "http://0.0.0.0:7931",
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information"
+    }
+  },
+  "Jwt": {
+    "Audience": "Luger",
+    "Issuer": "Luger",
+    "ExpiresSeconds": "3600"
+  },
+  "Luger": {
+    "FlushIntervalSeconds": "5",
+    "StorageDirectory": "./logs",
+    "Users": [],
+    "Buckets": []
+  }
+}
