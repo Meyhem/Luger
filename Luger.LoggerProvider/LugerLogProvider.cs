@@ -31,7 +31,7 @@ namespace Luger.LoggerProvider
 
         public ILogger CreateLogger(string categoryName)
         {
-            return new LugerLogger(batchPoster);
+            return new LugerLogger(batchPoster, categoryName);
         }
 
         public void Dispose()

@@ -1,60 +1,86 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
+using Timer = System.Timers.Timer;
 
 namespace Luger.LoggerProvider
 {
-    public class BatchLogPoster: IDisposable
+    public class BatchLogPoster : IDisposable, IAsyncDisposable
     {
         private readonly LugerLogOptions config;
         private readonly HttpClient httpClient;
-        private readonly Queue<LogRecord> queue;
-        private readonly object thislock;
-        private readonly Timer timer;
+        private readonly ConcurrentQueue<LogRecord> queue;
+        private readonly object thisLock;
+        private readonly Task backgroundTask;
+        private readonly CancellationTokenSource cancellationTokenSource;
 
         public BatchLogPoster(LugerLogOptions config, HttpClient httpClient)
         {
-            timer = new Timer(config.BatchPostInterval.TotalMilliseconds);
-            timer.Elapsed += delegate { TriggerBatchPost().Wait(); };
-            timer.Start();
-
-            thislock = new();
-            queue = new Queue<LogRecord>(1024);
             this.config = config;
             this.httpClient = httpClient;
+            
+            thisLock = new object();
+            queue = new ConcurrentQueue<LogRecord>();
+            
+            cancellationTokenSource = new CancellationTokenSource();
+            backgroundTask = BatchPostingBackgroundTask(cancellationTokenSource.Token);
         }
 
         public void AddLog(LogRecord log)
         {
-            lock (thislock)
-            {
-                queue.Enqueue(log);
-            }
+            // ReSharper disable once InconsistentlySynchronizedField
+            queue.Enqueue(log);
         }
 
+        public async ValueTask DisposeAsync()
+        {
+            cancellationTokenSource.Cancel();
+            await backgroundTask;
+        }
+        
         public void Dispose()
         {
-            timer.Stop();
-            timer.Dispose();
+            DisposeAsync().AsTask().Wait();
         }
 
-        private async Task TriggerBatchPost()
+        private async Task BatchPostingBackgroundTask(CancellationToken cancellationToken)
         {
-            Console.WriteLine("Batchposting");
-            LogRecord[] logs;
-            lock (thislock)
+            while (!cancellationToken.IsCancellationRequested)
             {
-                logs = queue.ToArray();
-                queue.Clear();
+                try
+                {
+                    await Task.Delay(
+                        TimeSpan.FromMilliseconds(config.BatchPostInterval.TotalMilliseconds),
+                        cancellationToken
+                    );
+
+                    LogRecord[] logs;
+                    lock (thisLock)
+                    {
+                        logs = queue.ToArray();
+                        queue.Clear();
+                    }
+
+                    if (!logs.Any()) return;
+
+                    await httpClient.PostAsync(
+                        $"/api/collect/{config.Bucket}",
+                        JsonContent.Create(logs),
+                        cancellationToken
+                    );
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    // silencing exception ?
+                }
             }
-
-            if (!logs.Any()) return;
-
-            await httpClient.PostAsync($"/collect/{config.Bucket}", JsonContent.Create(logs));
         }
+
+
     }
 }
