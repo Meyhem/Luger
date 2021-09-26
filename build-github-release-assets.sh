@@ -18,11 +18,19 @@ asset_dir="github_release_assets"
 packageprefix="luger"
 
 build_rids=("win-x64" "linux-x64")
-declare -A build_types=(["runtime"]="--self-contained true -p:PublishSingleFile=true" ["no_runtime"]="")
+declare -A build_types=(
+    ["single_file_runtime"]="-p:PublishSingleFile=true --self-contained true" 
+    ["single_file_no_runtime"]="-p:PublishSingleFile=true --self-contained false" 
+    ["runtime"]="-p:PublishSingleFile=false --self-contained true" 
+    ["no_runtime"]="-p:PublishSingleFile=false --self-contained false" 
+)
 
 stage "Tools check"
 dotnet --version || die "No dotnet"
 yarn --version || die "No yarn"
+cp --version || die "No cp"
+rm --version || die "No rm"
+tar --version || die "No tar"
 
 stage "Prepare dirs"
 rm -rf $asset_dir

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -84,15 +85,15 @@ namespace Luger
         private TOptions ConfigureOptionsFor<TOptions>(IServiceCollection collection, string key) where TOptions : class
         {
             var optionsSection = Configuration.GetSection(key);
-            collection.Configure<TOptions>(optionsSection);
             var options = optionsSection.Get<TOptions>();
-
+            collection.AddOptions<TOptions>().Bind(optionsSection);
             return options;
         }
 
         private void AssertConfigurationValid(IServiceProvider di)
         {
             var lugerOptions = Configuration.GetSection("Luger").Get<LugerOptions>();
+            var jwtOptions = Configuration.GetSection("Jwt").Get<JwtOptions>();
 
             if (lugerOptions.Buckets.IsNullOrEmpty())
             {
@@ -112,7 +113,26 @@ namespace Luger
             if (lugerOptions.Users.IsNullOrEmpty())
             {
                 throw new ArgumentException(
-                    "No users configured in json config. Configure at least one bucket in section \"Luger.Users\"");
+                    "No users configured in json config. Configure at least one user in section \"Luger.Users\"");
+            }
+
+            foreach (var user in lugerOptions.Users)
+            {
+                if (!user.Buckets.All(userBucket => lugerOptions.Buckets.Any(bucket => bucket.Id == userBucket)))
+                {
+                    throw new ArgumentException(
+                        $"User \"{user.Id}\" has access to non-existent bucket. Verify all to match to at least one Bucket Id");
+                }
+            }
+
+            if (string.IsNullOrEmpty(lugerOptions.StorageDirectory))
+            {
+                throw new ArgumentException($"Luger.StorageDirectory is missing in configuration");
+            }
+
+            if (string.IsNullOrEmpty(jwtOptions.SigningKey))
+            {
+                throw new ArgumentException($"Jwt.SigningKey is missing in configuration");
             }
         }
     }

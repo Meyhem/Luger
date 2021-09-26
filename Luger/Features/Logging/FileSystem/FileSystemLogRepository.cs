@@ -199,7 +199,7 @@ namespace Luger.Features.Logging.FileSystem
 
                     await FlushAsync();
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not OperationCanceledException)
                 {
                     logger.LogError(ex, "Flush task failed");
                 }
