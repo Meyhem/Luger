@@ -7,7 +7,7 @@ namespace Luger.LoggerProvider
 {
     using Label = KeyValuePair<string, string>;
 
-    public class LugerLogger : ILogger
+    internal class LugerLogger : ILogger
     {
         private readonly IList<object> scopes;
         private readonly BatchLogPoster batchPoster;

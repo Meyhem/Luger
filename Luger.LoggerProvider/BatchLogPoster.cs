@@ -10,7 +10,7 @@ using Timer = System.Timers.Timer;
 
 namespace Luger.LoggerProvider
 {
-    public class BatchLogPoster : IDisposable, IAsyncDisposable
+    internal class BatchLogPoster : IDisposable, IAsyncDisposable
     {
         private readonly LugerLogOptions config;
         private readonly HttpClient httpClient;

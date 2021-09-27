@@ -174,7 +174,7 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
                 <Section width="50%">
                   <Field
                     name="message"
-                    render={p => <FormControl {...p} label="Message (regex)" component={Input} size="middle" />}
+                    render={p => <FormControl {...p} label="Message" component={Input} size="middle" />}
                   />
                 </Section>
 

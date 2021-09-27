@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Luger.LoggerProvider
 {
-    public class LogRecord
+    internal  class LogRecord
     {
         public const string MessageField = "@m";
         public const string LevelField = "@l";

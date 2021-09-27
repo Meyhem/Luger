@@ -22,11 +22,9 @@ namespace Luger.Playground
                 Console.WriteLine(i);
                 logger.LogWarning("Test warning log {label} {category}", "labelvalue", "oops, dupe");
                 await Task.Delay(500);
-                
             }
 
             await Task.Delay(5000);
-            
         }
     }
 }

@@ -6,12 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Luger.LoggerProvider" Version="0.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Luger.LoggerProvider\Luger.LoggerProvider.csproj" />
   </ItemGroup>
 
 </Project>

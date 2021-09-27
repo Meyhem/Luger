@@ -2,7 +2,7 @@
 
 namespace Luger.LoggerProvider
 {
-    class CallbackDisposable: IDisposable
+    internal class CallbackDisposable: IDisposable
     {
         private readonly Action callback;
 
