@@ -14,16 +14,12 @@
 
     <ItemGroup>
       <None Remove="logs\**" />
-      <Content Remove="luger-override.json" />
-      <None Include="luger-override.json" />
+      <None Include="luger-override-develop.json" />
+      <Content Remove="luger-override-develop.json" />
     </ItemGroup>
 
     <ItemGroup>
       <Compile Remove="logs\**" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <EmbeddedResource Remove="logs\**" />
     </ItemGroup>
 
     <ItemGroup>

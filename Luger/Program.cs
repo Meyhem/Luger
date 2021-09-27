@@ -14,6 +14,7 @@ namespace Luger
                 {
                     config.AddJsonFile("luger.json");
                     config.AddJsonFile("luger-override.json", optional: true);
+                    config.AddJsonFile("luger-override-develop.json", optional: true);
                 })
                 .ConfigureLogging(logging =>
                 {
