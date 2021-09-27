@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.31402.337
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Luger", "Luger\Luger.csproj", "{DADFC388-00E8-438F-8D0D-AF44333F5A81}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Luger.LoggerProvider", "Luger.LoggerProvider\Luger.LoggerProvider.csproj", "{EF143C38-0168-41F4-83A9-9F05E5E08C7E}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luger.Playground", "Luger.Playground\Luger.Playground.csproj", "{F0070BD1-557D-4A53-B9CB-2444AF37AC78}"
 EndProject
 Global
@@ -19,10 +17,6 @@ Global
 		{DADFC388-00E8-438F-8D0D-AF44333F5A81}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DADFC388-00E8-438F-8D0D-AF44333F5A81}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DADFC388-00E8-438F-8D0D-AF44333F5A81}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EF143C38-0168-41F4-83A9-9F05E5E08C7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EF143C38-0168-41F4-83A9-9F05E5E08C7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EF143C38-0168-41F4-83A9-9F05E5E08C7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EF143C38-0168-41F4-83A9-9F05E5E08C7E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F0070BD1-557D-4A53-B9CB-2444AF37AC78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F0070BD1-557D-4A53-B9CB-2444AF37AC78}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F0070BD1-557D-4A53-B9CB-2444AF37AC78}.Release|Any CPU.ActiveCfg = Release|Any CPU
