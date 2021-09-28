@@ -104,3 +104,10 @@ Preferred place for your configuration is **luger-override.json**.
 # FAQ
 ### 1. I'm getting ArgumentException at startup
 Mostly caused by invalid configuration, missing user or bucket. Message should guide you. 
+
+# Developer
+## Building container
+```sh
+docker build -t luger:latest .
+docker run -p 7931:7931 --name luger1 luger
+```
