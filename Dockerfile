@@ -14,12 +14,7 @@ WORKDIR /luger
 COPY --from=dotnetbuild /build/backend/publish .
 COPY --from=reactbuild /build/frontend/build wwwroot
 
-ENV DOTNET_RUNNING_IN_CONTAINER=true
-ENV Luger__Users__0__Id="admin"
-ENV Luger__Users__0__Password="admin"
-ENV Luger__Users__0__Buckets__0="bucket"
-ENV Luger__Buckets__0__Id="bucket"
-ENV Jwt__SigningKey="My secred password for JWT"
+ENV RUNNING_IN_CONTAINER=true
 
 EXPOSE 7931
 

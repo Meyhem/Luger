@@ -1,11 +1,11 @@
 bin/
 obj/
 /packages/
-luger_package
 wwwroot
 logs/
 .vs
 *.csproj.user
 .idea
 .vscode
+luger_package
 github_release_assets

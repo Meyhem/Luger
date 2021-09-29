@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Luger
@@ -94,7 +95,8 @@ namespace Luger
         {
             var lugerOptions = Configuration.GetSection("Luger").Get<LugerOptions>();
             var jwtOptions = Configuration.GetSection("Jwt").Get<JwtOptions>();
-
+            var logger = di.GetRequiredService<ILogger<Startup>>();
+            
             if (lugerOptions.Buckets.IsNullOrEmpty())
             {
                 throw new ArgumentException(
@@ -133,6 +135,16 @@ namespace Luger
             if (string.IsNullOrEmpty(jwtOptions.SigningKey))
             {
                 throw new ArgumentException($"Jwt.SigningKey is missing in configuration");
+            }
+
+            foreach (var bucket in lugerOptions.Buckets)
+            {
+                logger.LogInformation("Bucket {Id} configured", bucket.Id);
+            }
+
+            foreach (var user in lugerOptions.Users)
+            {
+                logger.LogInformation("User {Id} configured", user.Id);
             }
         }
     }

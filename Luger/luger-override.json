@@ -1,0 +1,9 @@
+{
+  "Jwt": {
+    "SigningKey": "your-signing-key-here"
+  },
+  "Luger": {
+    "Users": [],
+    "Buckets": []
+  }
+}

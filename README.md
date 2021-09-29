@@ -12,7 +12,18 @@ Mind that IIS process must be able to write into StorageDirectory. By default it
 Pick [Release](https://github.com/Meyhem/Luger/releases) binary, and run in a unit (write your own unit file // TODO provide in repo).
 
 ### Docker
-// TODO
+
+**Single command run (good for looking around)**  
+username: _admin_  
+password: _admin_
+```sh 
+$ docker pull meyhem/luger
+
+$ docker run -p 7931:7931 --env Luger__Users__0__Id="admin" --env Luger__Users__0__Password="admin" --env Luger__Users__0__Buckets__0="bucket" --env Luger__Buckets__0__Id="bucket" --env Jwt__SigningKey="My secred password for JWT" meyhem/luger
+```
+
+**Provisioning config override**  
+Luger container accepts optional config override at path **/config/luger-override.json** where you can mount your volume with your [config](#2-configure).
 
 ## 2. Configure
 Luger already preconfigures most values for you in **luger.json**, it's up to you to do the rest.  
@@ -109,5 +120,7 @@ Mostly caused by invalid configuration, missing user or bucket. Message should g
 ## Building container
 ```sh
 docker build -t luger:latest .
-docker run -p 7931:7931 --name luger1 luger
+docker run -p 7931:7931 luger
+docker tag luger meyhem/luger:latest
+docker push meyhem/luger:latest
 ```
