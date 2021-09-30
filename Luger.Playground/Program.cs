@@ -12,16 +12,17 @@ namespace Luger.Playground
             var provider = new LugerLogProvider(new LugerLogOptions
             {
                 LugerUrl = new Uri("http://localhost:7931"),
-                Bucket = "project-1"
+                Bucket = "bucket"
             });
 
             ILogger logger = provider.CreateLogger("Test category");
-
+            var rng = new Random();
             for (int i = 0; i < 100; i++)
             {
-                Console.WriteLine(i);
-                logger.LogWarning("Test warning log {label} {category}", "labelvalue", "oops, dupe");
-                await Task.Delay(500);
+                Console.WriteLine("write");
+                logger.Log((LogLevel)rng.Next(5), "This is test message! With label value={LabelValue}", i);
+                
+                await Task.Delay(100);
             }
 
             await Task.Delay(5000);
