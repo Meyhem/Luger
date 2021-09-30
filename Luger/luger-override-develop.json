@@ -7,12 +7,12 @@
       {
         "Id": "admin",
         "Password": "admin",
-        "Buckets": ["project-1","project-2"]
+        "Buckets": ["bucket","project-2"]
       }
     ],
     "Buckets": [
       {
-        "Id": "project-1",
+        "Id": "bucket",
         "MaxRetentionHours": 5
       },
       {

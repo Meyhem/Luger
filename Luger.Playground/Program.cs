@@ -17,15 +17,23 @@ namespace Luger.Playground
 
             ILogger logger = provider.CreateLogger("Test category");
             var rng = new Random();
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 1; i++)
             {
+                try
+                {
+                    throw new InvalidOperationException("Some exception occured!");
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "This is an error with exception! {Label}", 1);
+                }
                 Console.WriteLine("write");
-                logger.Log((LogLevel)rng.Next(5), "This is test message! With label value={LabelValue}", i);
+                // logger.Log((LogLevel)rng.Next(5), "This is test message! With label value={LabelValue}", i);
                 
                 await Task.Delay(100);
             }
 
-            await Task.Delay(5000);
+            await Task.Delay(500000);
         }
     }
 }
