@@ -2,6 +2,8 @@
 Simple, lightweight alternative for centralized logging. 
 Provides rich searching capabilities for structures logs while keeping minimal profile.
 
+![Luger demo image](https://raw.githubusercontent.com/Meyhem/Luger/master/.github/luger_ui.png)
+
 # First steps
 ## 1. Choose hosting option
 ### Windows IIS
