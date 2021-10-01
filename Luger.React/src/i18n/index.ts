@@ -19,7 +19,7 @@ languageInstance.use(initReactI18next).init({
 
   fallbackLng: 'en',
   keySeparator: '.',
-  missingKeyHandler: (lngs: string[], ns: string, key: string) => {
+  missingKeyHandler: (lngs, ns, key) => {
     const message = `Translation for key: ${ns}:${key} is missing in languages: ${_.join(lngs, ',')}`
     console.warn(message) // eslint-disable-line no-console
   }

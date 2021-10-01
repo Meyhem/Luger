@@ -30,7 +30,7 @@ export function useApi<T>(hookConfig?: UseApiConfig) {
         const res = (await axios(reqConfig)) as unknown as T
         setError(null)
         return res
-      } catch (e) {
+      } catch (e: any) {
         setError(e)
         throw e
       } finally {

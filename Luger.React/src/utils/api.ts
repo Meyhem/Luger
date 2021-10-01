@@ -40,7 +40,7 @@ export function* api<Response>(apiCallConfiguration: AxiosRequestConfig): Genera
     })
 
     return yield call(executeApiCall, axios, reqData)
-  } catch (e) {
+  } catch (e: any) {
     notification.error({ type: 'error', message: `Error`, description: formatError(e), duration: 3 })
     throw e
   } finally {
