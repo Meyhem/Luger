@@ -4,6 +4,22 @@ Provides rich searching capabilities for structures logs while keeping minimal p
 
 ![Luger demo image](https://raw.githubusercontent.com/Meyhem/Luger/master/.github/luger_ui.png)
 
+- [First steps](#first-steps)
+    * [1. Choose hosting option](#1-choose-hosting-option)
+        + [Windows IIS](#windows-iis)
+        + [Linux SystemD](#linux-systemd)
+        + [Docker](#docker)
+        + [Docker compose](#docker-compose)
+    * [2. Configure](#2-configure)
+    * [3. Run](#3-run)
+- [Logging providers](#logging-providers)
+- [Full config structure](#full-config-structure)
+- [FAQ](#faq)
+    + [1. I'm getting ArgumentException at startup](#1-im-getting-argumentexception-at-startup)
+    + [2. How do I choose release binary](#2-how-do-i-choose-release-binary)
+- [Developer](#developer)
+    * [Building container](#building-container)
+
 # First steps
 ## 1. Choose hosting option
 ### Windows IIS
@@ -14,18 +30,22 @@ Mind that IIS process must be able to write into StorageDirectory. By default it
 Pick [Release](https://github.com/Meyhem/Luger/releases) binary, and run in a unit (write your own unit file // TODO provide in repo).
 
 ### Docker
-
-**Single command run (good for looking around)**  
+Single command run (good for looking around)    
 username: _admin_  
 password: _admin_
 ```sh 
-$ docker pull meyhem/luger
+docker pull meyhem/luger
 
-$ docker run -p 7931:7931 --env Luger__Users__0__Id="admin" --env Luger__Users__0__Password="admin" --env Luger__Users__0__Buckets__0="bucket" --env Luger__Buckets__0__Id="bucket" --env Jwt__SigningKey="My secred password for JWT" meyhem/luger
+docker run -p 7931:7931 --env Luger__Users__0__Id="admin" --env Luger__Users__0__Password="admin" --env Luger__Users__0__Buckets__0="bucket" --env Luger__Buckets__0__Id="bucket" --env Jwt__SigningKey="My secred password for JWT" meyhem/luger
 ```
 
-**Provisioning config override**  
-Luger container accepts optional config override at path **/config/luger-override.json** where you can mount your volume with your [config](#2-configure).
+### Docker-compose
+Download [compose file](https://github.com/Meyhem/Luger/blob/master/docker-compose.yaml) as docker-compose.yml and 
+```sh
+docker-compose up
+```
+
+
 
 ## 2. Configure
 Luger already preconfigures most values for you in **luger.json**, it's up to you to do the rest.  
@@ -58,15 +78,20 @@ This is minimal configuration that you can put into **luger-override.json**.
 }
 ```
 
+**Provisioning config override**  
+Luger container accepts optional config override at path **/config/luger-override.json** where you can mount your volume with your config file.
+
+## 3. Run
+If running manually out of docker then based on your chosen release binary, there will be Luger.dll and/or Luger.exe present.
+You can run the .exe directly, or run dll with ```dotnet Luger.dll```
+
 # Logging providers
 **C#** _Microsoft.Extensions.Logging_ [Luger.LoggerProvider](https://github.com/Meyhem/Luger.LoggerProvider)
 
 
-# Configuration
+# Full config structure
 Luger is configured via json files **luger.json** and **luger-override.json**.  
 Preferred place for your configuration is **luger-override.json**.
-
-## Full config structure
 ```json5
 {
   // Listening url for server
@@ -116,7 +141,14 @@ Preferred place for your configuration is **luger-override.json**.
 
 # FAQ
 ### 1. I'm getting ArgumentException at startup
-Mostly caused by invalid configuration, missing user or bucket. Message should guide you. 
+Mostly caused by invalid configuration, missing user or bucket. Message should guide you.  
+See [Configure](#2-configure) section
+### 2. How do I choose release binary 
+- **no_runtime** - Package doesn't contain .net runtime, you must install it on your hosting platform
+- **runtime** - larger package, but contain .net runtime, no need to install any
+- **single_file** - package with dependencies packed into single file, should be preferred (might be incompatible with very old systems)
+- **win-x64** - only for 64-bit windows
+- **linux-x64** - only for 64-bit linux
 
 # Developer
 ## Building container

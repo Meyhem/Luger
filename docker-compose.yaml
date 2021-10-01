@@ -1,46 +1,19 @@
 version: "3.4"
 
 volumes:
-  mongo-vol:
-networks:
-  luger-net:
+  luger-vol:
 
 services:
   luger:
-    container_name: Luger.App
-    build: .
+    container_name: Luger
+    image: meyhem/luger
     ports:
-      - "80:80"
-    networks:
-      - luger-net
-    environment:
-      Luger__Mongo__Url: mongodb://admin:admin@mongo:27017?connectTimeoutMS=10000
-    depends_on:
-      - "mongo"
-
-  mongo:
-    container_name: Luger.Db
-    image: mongo
+      - "7931:7931"
     volumes:
-      - mongo-vol:/data/db
-    ports:
-      - "27017:27017"
-    networks:
-      - luger-net
+      - luger-vol:/luger/logs
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: admin
-      MONGO_INITDB_DATABASE: Luger
-
-  mongo-express:
-    container_name: Luger.DbExplorer
-    image: mongo-express
-    ports:
-      - 8081:8081
-    networks:
-      - luger-net
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
-      ME_CONFIG_MONGODB_ADMINPASSWORD: admin
-    depends_on:
-      - "mongo"
+      Luger__Users__0__Id: "admin"
+      Luger__Users__0__Password: "admin"
+      Luger__Users__0__Buckets__0: "bucket"
+      Luger__Buckets__0__Id: "bucket"
+      Jwt__SigningKey: "My secred password for JWT"
