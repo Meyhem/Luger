@@ -1,0 +1,11 @@
+[Unit]
+Description=Luger logging server
+
+[Service]
+WorkingDirectory=/opt/luger_single_file_runtime_linux-x64
+ExecStart=/opt/luger_single_file_runtime_linux-x64/Luger
+Restart=always
+SyslogIdentifier=luger
+
+[Install]
+WantedBy=multi-user.target
