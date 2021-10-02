@@ -7,7 +7,7 @@ stage() {
   NSTAGE=$((NSTAGE+1))
 }
 
-die () {
+die() {
   echo "Build failed: $1"
   exit 1
 }
