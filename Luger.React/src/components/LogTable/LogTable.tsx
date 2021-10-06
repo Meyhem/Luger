@@ -22,6 +22,12 @@ type LogTableProps = {
   bucket: string
 }
 
+type Exception = {
+  message?: string
+  trace?: string
+  innerException?: Exception
+}
+
 const LogTableContainer = styled.table<{ wide: boolean }>`
   table-layout: ${({ wide }) => (wide ? 'auto' : 'fixed')};
   width: ${({ wide }) => (wide ? 'auto' : '100%')};
@@ -89,6 +95,28 @@ const Label = styled.div`
   }
 `
 
+const matchNewline = /(\n|\r\n)/
+
+function transfromText(text?: string): string[] {
+  return _.split(text, matchNewline)
+}
+
+function transformException(ex?: Exception): string[] {
+  if (!ex) return []
+  return [...transfromText(ex.message), ...transfromText(ex.trace), ...transformException(ex.innerException)]
+}
+
+function transformExceptionText(ex?: string) {
+  if (!ex) return ''
+  try {
+    return transformException(JSON.parse(ex))
+  } catch (e: any) {
+    // eslint-disable-next-line no-console
+    console.warn('Failed to parse log exception text', ex, e)
+    return ''
+  }
+}
+
 const LogCellMessageContainer: FC = ({ children }) => {
   const [expanded, setExpanded] = useState(false)
   const toggleExpanded = useCallback(() => setExpanded(!expanded), [expanded])
@@ -120,12 +148,13 @@ export const LogTable = ({ bucket }: LogTableProps) => {
             <LogCellLabels wide={settings.wide}>
               {_.map(record.labels, (v, k) => (
                 <Label key={k} onClick={() => d(SearchActions.addLabelFilter({ bucket: bucket, name: k, value: v }))}>
-                  <b>{k}</b>: {v}
+                  <b>{k}</b>: {k === '@exception' ? transformExceptionText(v) : v}
                 </Label>
               ))}
             </LogCellLabels>
             <LogCellMessageContainer>
-              {_.map(_.split(record.message, /(\n|\r\n)/), (line, i) => (
+              {/* todo check if transforming each render isn't too costy for large pagesize */}
+              {_.map(transfromText(record.message), (line, i) => (
                 <div key={i}>{line}</div>
               ))}
             </LogCellMessageContainer>

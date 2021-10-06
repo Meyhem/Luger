@@ -62,23 +62,37 @@ namespace Luger.Features.Logging.FileSystem
         {
             bucket = Normalization.NormalizeBucketName(bucket);
             var bucketFolder = GetBucketFolder(bucket);
-            
+
             if (!Directory.Exists(bucketFolder)) yield break;
 
-            var filesToRead = Directory.GetFiles(bucketFolder)
+            // select all files in bucket and parse their timestamps
+            var orderedFileCandidates = Directory.GetFiles(bucketFolder)
                 .Select(path => (Path: path, Stamp: ParseLogFileNameStamp(path)))
-                .OrderBy(pathStampPair => pathStampPair.Stamp)
-                .Where(pathStampPair => pathStampPair.Stamp >= start && pathStampPair.Stamp <= end)
-                .Select(pathStampPair => pathStampPair.Path);
+                .OrderBy(fileCandidate => fileCandidate.Stamp)
+                .ToList();
+
+            // find starting file
+            var startIndexCandidate = orderedFileCandidates
+                .FindIndex(fileCandidate => fileCandidate.Stamp > start);
+
+            // if found take previous file
+            // if not found take last file 
+            startIndexCandidate = startIndexCandidate < 0 ? orderedFileCandidates.Count - 1 : Math.Max(startIndexCandidate - 1, 0);
+
+            // filter candidates that can contain selected time range
+            var filesToRead = orderedFileCandidates
+                .Skip(startIndexCandidate)
+                .Where(fileCandidate => fileCandidate.Stamp <= end)
+                .Select(fileCandidate => fileCandidate.Path);
 
             foreach (var file in filesToRead)
             {
                 logger.LogInformation("Reading file {File}", file);
-                
+
                 await using var fileStream = OpenLogFileRead(bucket, Path.GetFileName(file));
                 var logStream = ReadLog(fileStream);
                 using var logStreamEnumerator = logStream.GetEnumerator();
-                
+
                 for (;;)
                 {
                     try
@@ -97,7 +111,6 @@ namespace Luger.Features.Logging.FileSystem
             }
         }
 
-        
         public async Task FlushAsync()
         {
             var bucketLogsMap = new Dictionary<string, LogRecordDto[]>();
@@ -133,13 +146,13 @@ namespace Luger.Features.Logging.FileSystem
             var bucket = Normalization.NormalizeBucketName(bucketOptions.Id);
             var bucketFolder = GetBucketFolder(bucket);
             var now = DateTimeOffset.UtcNow;
-            
+
             if (bucketOptions.MaxRetentionHours < 1) return;
             if (!Directory.Exists(bucketFolder)) return;
 
             var expiredFiles = Directory.GetFiles(bucketFolder)
                 .Select(path => (Path: path, Stamp: ParseLogFileNameStamp(path)))
-                .Where(pathStampPair => 
+                .Where(pathStampPair =>
                     pathStampPair.Stamp.Add(TimeSpan.FromHours(bucketOptions.MaxRetentionHours)) < now)
                 .Select(pathStampPair => pathStampPair.Path);
 
@@ -155,15 +168,15 @@ namespace Luger.Features.Logging.FileSystem
                 }
             }
         }
-        
+
         private IEnumerable<LogRecordDto> ReadLog(Stream stream)
         {
             var serializer = new JsonSerializer();
-            
+
             using var streamReader = new StreamReader(stream);
             using var jsonReader = new JsonTextReader(streamReader);
             jsonReader.SupportMultipleContent = true;
-            
+
             while (jsonReader.Read())
             {
                 if (jsonReader.TokenType == JsonToken.StartObject)
@@ -180,7 +193,7 @@ namespace Luger.Features.Logging.FileSystem
                             e);
                         continue;
                     }
-                    
+
                     if (log is not null) yield return log;
                 }
             }
@@ -270,7 +283,7 @@ namespace Luger.Features.Logging.FileSystem
 
         private static DateTimeOffset ParseLogFileNameStamp(string fileName)
         {
-            if (DateTimeOffset.TryParseExact( Path.GetFileNameWithoutExtension(fileName),
+            if (DateTimeOffset.TryParseExact(Path.GetFileNameWithoutExtension(fileName),
                 FileNameDateTimeFormat,
                 CultureInfo.InvariantCulture,
                 DateTimeStyles.AssumeUniversal,
