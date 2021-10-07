@@ -113,7 +113,7 @@ function transformExceptionText(ex?: string) {
   } catch (e: any) {
     // eslint-disable-next-line no-console
     console.warn('Failed to parse log exception text', ex, e)
-    return ''
+    return []
   }
 }
 
@@ -128,6 +128,7 @@ const LogCellMessageContainer: FC = ({ children }) => {
   )
 }
 
+const exceptionLabel = '@exception'
 export const LogTable = ({ bucket }: LogTableProps) => {
   const records = useSelector((state: RootState) => selectLogs(state, bucket))
   const settings = useSelector((state: RootState) => selectSettings(state, bucket))
@@ -146,15 +147,22 @@ export const LogTable = ({ bucket }: LogTableProps) => {
               </div>
             </LogCellTime>
             <LogCellLabels wide={settings.wide}>
-              {_.map(record.labels, (v, k) => (
+              {_.map(_.omit(record.labels, exceptionLabel), (v, k) => (
                 <Label key={k} onClick={() => d(SearchActions.addLabelFilter({ bucket: bucket, name: k, value: v }))}>
-                  <b>{k}</b>: {k === '@exception' ? transformExceptionText(v) : v}
+                  <b>{k}</b>: {v}
                 </Label>
               ))}
             </LogCellLabels>
             <LogCellMessageContainer>
               {/* todo check if transforming each render isn't too costy for large pagesize */}
               {_.map(transfromText(record.message), (line, i) => (
+                <div key={i}>{line}</div>
+              ))}
+            </LogCellMessageContainer>
+            <LogCellMessageContainer>
+              {/* todo check if transforming each render isn't too costy for large pagesize */}
+              {record.labels[exceptionLabel] && <b>Exception:</b>}
+              {_.map(transformExceptionText(record.labels[exceptionLabel]), (line, i) => (
                 <div key={i}>{line}</div>
               ))}
             </LogCellMessageContainer>
