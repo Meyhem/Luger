@@ -25,7 +25,7 @@ if [ "$current_branch" != "master" ]; then
     die "Not on master branch"
 fi
 
-existing=$(git tag | { grep -P "^$release_version$" || true; } )
+existing=$(git tag | { grep -x "$release_version" || true; } )
 if [ -z "$existing" ]; then
     die "Release tag $release_version does not exist"
 fi
