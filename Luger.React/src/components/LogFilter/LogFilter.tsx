@@ -1,4 +1,4 @@
-import { Menu } from 'antd'
+import { Menu, Tooltip } from 'antd'
 import dayjs, { Dayjs, OpUnitType } from 'dayjs'
 import arrayMutators from 'final-form-arrays'
 import _ from 'lodash'
@@ -42,14 +42,18 @@ const CenteredInput = styled(Input)`
   text-align: center;
 `
 
-// const HelpIconTooltip = styled(Tooltip)`
-//   display: flex;
-//   align-items: center;
-//   font-size: 30px;
-//   color: ${themeColor('primary')};
-//   cursor: pointer;
-//   height: 40px;
-// `
+const HelpIconTooltip = styled(Tooltip)`
+  display: flex;
+  align-items: center;
+  font-size: 30px;
+  color: ${themeColor('primary')};
+  cursor: pointer;
+  height: 40px;
+`
+
+const TooltipLine = styled.div`
+  white-space: nowrap;
+`
 
 type LocalLabelFilter = { id: string } & LabelFilter
 
@@ -171,11 +175,24 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
                   />
                 </Section>
 
-                <Section width="50%">
+                <Section width="45%">
                   <Field
                     name="message"
                     render={p => <FormControl {...p} label="Message" component={Input} size="middle" />}
                   />
+                </Section>
+                <Section width="5%" alignItems="flex-end">
+                  <HelpIconTooltip
+                    title={
+                      <Flex flexDirection="column">
+                        <TooltipLine>Message filter may contain wildcards</TooltipLine>
+                        <TooltipLine>&apos;*&apos; (matches zero or more chars)</TooltipLine>
+                        <TooltipLine>&apos;?&apos; (matches zero or one char)</TooltipLine>
+                      </Flex>
+                    }
+                  >
+                    ⓘ
+                  </HelpIconTooltip>
                 </Section>
 
                 <Section width="50%" alignItems="center">

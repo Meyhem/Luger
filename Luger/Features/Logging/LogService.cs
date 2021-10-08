@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Luger.Common;
 using Luger.Features.Logging.Dto;
@@ -36,6 +37,12 @@ namespace Luger.Features.Logging
             int pageSize)
         {
             bucket = Normalization.NormalizeBucketName(bucket);
+            var messagePattern = new Regex(
+                Regex.Escape(message)
+                    .Replace(@"\*", ".*")
+                    .Replace(@"\?", ".?"),
+                RegexOptions.CultureInvariant | RegexOptions.IgnoreCase
+            );
 
             var toSkip = pageSize * page;
             var nlog = 0;
@@ -44,7 +51,7 @@ namespace Luger.Features.Logging
             {
                 var isMatch = MatchesTimestampRange(log, from, to) &&
                               (levels.IsNullOrEmpty() || MatchesLevels(log, levels)) &&
-                              (string.IsNullOrEmpty(message) || MatchesMessage(log, message)) &&
+                              (string.IsNullOrEmpty(message) || MatchesMessage(log, messagePattern)) &&
                               (labels.IsNullOrEmpty() || MatchesLabels(log, labels));
 
                 if (!isMatch) continue;
@@ -65,11 +72,11 @@ namespace Luger.Features.Logging
             return levels.Contains(log.Level);
         }
 
-        private bool MatchesMessage(LogRecordDto log, string message)
+        private bool MatchesMessage(LogRecordDto log, Regex messagePattern)
         {
             var logMessage = log.Message ?? string.Empty;
 
-            return logMessage.Contains(message, StringComparison.InvariantCultureIgnoreCase);
+            return messagePattern.IsMatch(logMessage);
         }
 
         private bool MatchesLabels(LogRecordDto log, LabelDto[] labels)

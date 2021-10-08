@@ -57,6 +57,10 @@ export const GlobalStyle = createGlobalStyle`
   h1, h2, h3 {
     font-weight: normal;
   }
+
+  .ant-tooltip {
+    max-width: 500px;
+  }
 `
 
 export function themeColor(color: Color): (p: ThemedStyledProps<unknown, DefaultTheme>) => string {

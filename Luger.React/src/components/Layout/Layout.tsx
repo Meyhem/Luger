@@ -76,7 +76,7 @@ export const Layout: FC<LayoutProps> = ({ children, heading }) => {
             </Link>
 
             <Button variant="transparent" onClick={logout}>
-              <Text fontSize="24px">⍇</Text>
+              <Text fontSize="24px">⤾</Text>
             </Button>
           </Flex>
         </SiderItem>
