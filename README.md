@@ -157,6 +157,9 @@ See [Configure](#2-configure) section
 - **single_file** - package with dependencies packed into single file, should be preferred (might be incompatible with very old systems)
 - **win-x64** - only for 64-bit windows
 - **linux-x64** - only for 64-bit linux
+- **linux-arm** - only for 32-bit arm linux
+- **linux-arm64** - only for 64-bit arm linux
+- **osx-x64** - only for 64-bit osx
 
 # Developer
 ## Building container

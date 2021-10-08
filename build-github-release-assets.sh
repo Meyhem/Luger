@@ -17,7 +17,7 @@ backenddir="Luger"
 asset_dir="github_release_assets"
 packageprefix="luger"
 
-build_rids=("win-x64" "linux-x64")
+build_rids=("win-x64" "linux-x64" "linux-arm" "linux-arm64" "osx-x64")
 declare -A build_types=(
     ["single_file_runtime"]="-p:PublishSingleFile=true --self-contained true" 
     ["single_file_no_runtime"]="-p:PublishSingleFile=true --self-contained false" 
