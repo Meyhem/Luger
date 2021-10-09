@@ -129,12 +129,7 @@ const defaultProps: SelectProps = {
 
 export const Select = ({ children, options, value, onSelect, ...rest }: SelectProps) => {
   return (
-    <StyledSelect
-      {...defaultProps}
-      {..._.omit(rest, 'error')}
-      value={_.isEmpty(value) ? undefined : value}
-      onSelect={onSelect}
-    >
+    <StyledSelect {...defaultProps} {..._.omit(rest, 'error')} value={value} onSelect={onSelect} suffixIcon={<>▼</>}>
       {!options && children}
       {options &&
         _.map(options, (opt, i) => (

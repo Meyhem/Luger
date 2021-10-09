@@ -13,6 +13,7 @@ export type Filter = {
   pageSize: number
   message: string
   labels: LabelFilter[]
+  autoreloadSeconds: number
 }
 
 export type TableSettings = {

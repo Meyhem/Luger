@@ -2,7 +2,7 @@ import { Menu, Tooltip } from 'antd'
 import dayjs, { Dayjs, OpUnitType } from 'dayjs'
 import arrayMutators from 'final-form-arrays'
 import _ from 'lodash'
-import { useCallback } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Field, Form, FormSpy } from 'react-final-form'
 import { FieldArray } from 'react-final-form-arrays'
 import { useDispatch, useSelector } from 'react-redux'
@@ -65,12 +65,25 @@ type FilterType = {
   pageSize: number
   message: string
   labels: LocalLabelFilter[]
+  autoreloadSeconds: number
 }
 
 export const LogFilter = ({ bucket }: LogFilterProps) => {
   const d = useDispatch()
   const filter = useSelector((state: RootState) => selectFilter(state, bucket))
   const settings = useSelector((state: RootState) => selectSettings(state, bucket))
+  const reloadIntervalHandleRef = useRef<any>()
+
+  useEffect(
+    () => () => {
+      if (reloadIntervalHandleRef.current) {
+        clearInterval(reloadIntervalHandleRef.current)
+        reloadIntervalHandleRef.current = null
+      }
+    },
+    [bucket]
+  )
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSubmit = useCallback(
     _.debounce((values: FilterType) => {
@@ -84,12 +97,24 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
             page: values.page || 0,
             pageSize: values.pageSize || 50,
             message: values.message,
-            labels: _.map(values.labels, l => ({ name: l.name, value: l.value }))
+            labels: _.map(values.labels, l => ({ name: l.name, value: l.value })),
+            autoreloadSeconds: values.autoreloadSeconds
           }
         })
       )
     }, Math.max(settings.autoSubmitDelay ?? 1500, 200)),
     [settings.autoSubmitDelay]
+  )
+
+  const autoReloadTimes = useMemo(
+    () => [
+      { label: '-', value: 0 },
+      { label: '5s', value: 5 },
+      { label: '10s', value: 10 },
+      { label: '30s', value: 30 },
+      { label: '1m', value: 60 }
+    ],
+    []
   )
 
   return (
@@ -102,14 +127,15 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
           page: filter.page || 0,
           pageSize: filter.pageSize || 50,
           message: filter.message || '',
-          labels: _.map(filter.labels, l => ({ ...l, id: _.uniqueId('labelId_') }))
+          labels: _.map(filter.labels, l => ({ ...l, id: _.uniqueId('labelId_') })),
+          autoreloadSeconds: filter.autoreloadSeconds || 0
         }}
         mutators={{ ...arrayMutators }}
         onSubmit={debouncedSubmit}
         render={({ handleSubmit, form, values }) => {
           const createJumpHandler = (amount: number, unit: OpUnitType) => () => {
-            form.change('from', dayjs().subtract(amount, unit))
-            form.change('to', dayjs())
+            form.change('from', dayjs().utc().subtract(amount, unit))
+            form.change('to', dayjs().utc())
             form.submit()
           }
           const createPageNavHandler = (change: number) => () => {
@@ -124,9 +150,34 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
                   if (_.some(_.values(state.dirtyFields))) {
                     form.submit()
                   }
+
+                  const registerInterval = () => {
+                    reloadIntervalHandleRef.current = setInterval(
+                      () => form.submit(),
+                      state.values.autoreloadSeconds * 1000
+                    )
+                  }
+
+                  // if use changed interval
+                  if (state.dirtyFields.autoreloadSeconds) {
+                    if (reloadIntervalHandleRef.current) {
+                      clearInterval(reloadIntervalHandleRef.current)
+                      reloadIntervalHandleRef.current = null
+                    }
+
+                    if (state.values.autoreloadSeconds) {
+                      registerInterval()
+                    }
+                  } else {
+                    // if no interval is set, but it should be (usually init)
+                    if (!reloadIntervalHandleRef.current && state.values.autoreloadSeconds) {
+                      registerInterval()
+                    }
+                  }
                 }}
                 subscription={{ active: true, dirtyFields: true, values: true }}
               />
+
               <Flex flexWrap="wrap">
                 <Section width="50%">
                   <Field
@@ -165,6 +216,7 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
                     render={p => (
                       <FormControl
                         {...p}
+                        disabled={_.get(values, 'autoreloadSeconds', 0) !== 0}
                         label="To"
                         component={DatePicker}
                         showTime={true}
@@ -195,7 +247,7 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
                   </HelpIconTooltip>
                 </Section>
 
-                <Section width="50%" alignItems="center">
+                <Section width="30%" alignItems="center">
                   <Box paddingTop={26}>
                     <Dropdown
                       trigger={['click']}
@@ -228,9 +280,17 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
                         </Menu>
                       }
                     >
-                      <Button variant="primary">Quick ranges ᐯ</Button>
+                      <Button variant="primary">Quick ranges ▼</Button>
                     </Dropdown>
                   </Box>
+                </Section>
+                <Section width="20%" alignItems="center">
+                  <Field
+                    name="autoreloadSeconds"
+                    render={p => (
+                      <FormControl {...p} label="Reload every" component={Select} options={autoReloadTimes} />
+                    )}
+                  />
                 </Section>
 
                 <Section width="70%" flexDirection="column" alignItems="flex-start">

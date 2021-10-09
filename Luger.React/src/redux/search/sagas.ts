@@ -1,4 +1,5 @@
 import { AxiosResponse } from 'axios'
+import dayjs from 'dayjs'
 import _ from 'lodash'
 import { all, put, select, takeLatest } from 'redux-saga/effects'
 import { getType } from 'typesafe-actions'
@@ -26,13 +27,19 @@ export function mapLogRecordResponse(logs: LogRecordResponse[]): LogRecord[] {
 export function* load({ payload }: ReturnType<typeof SearchActions.load>) {
   const filters: Filter = yield select(state => selectFilter(state, payload.bucket))
 
+  if (filters.autoreloadSeconds) {
+    filters.to = dayjs().utc().toJSON()
+  }
+
   const response: AxiosResponse<{ logs: LogRecordResponse[] }> = yield apiCall({
     method: 'post',
     url: `/api/search/${payload.bucket}`,
     data: { ...filters }
   })
 
-  yield put(SearchActions.setLogs({ bucket: payload.bucket, logs: mapLogRecordResponse(response.data.logs) }))
+  yield put(
+    SearchActions.setLogs({ bucket: payload.bucket, logs: mapLogRecordResponse(_.reverse(response.data.logs)) })
+  )
 }
 
 export function* reload({ payload }: ReturnType<typeof SearchActions.setFilter>) {

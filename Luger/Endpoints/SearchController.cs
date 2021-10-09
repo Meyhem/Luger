@@ -26,11 +26,10 @@ namespace Luger.Endpoints
         [ProducesResponseType(typeof(ProblemDetails), 400)]
         public async Task<IActionResult> GetAsync([FromRoute] string bucket, [FromBody] RequestSearch searchRequest)
         {
-
             if (!ModelState.IsValid) return ModelState.ToProblemResult();
-            
+
             searchRequest ??= new RequestSearch();
-            
+
             var labelsDto = searchRequest.Labels
                 .Where(l => !string.IsNullOrWhiteSpace(l.Name) || !string.IsNullOrWhiteSpace(l.Value))
                 .Select(l => new LabelDto
@@ -46,8 +45,9 @@ namespace Luger.Endpoints
                 searchRequest.Message,
                 labelsDto.ToArray(),
                 searchRequest.Page,
-                searchRequest.PageSize);
-            
+                searchRequest.PageSize
+            );
+
             return Ok(new ResponseSearch {Logs = await logs.ToArrayAsync()});
         }
     }

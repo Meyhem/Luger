@@ -13,7 +13,8 @@ export const bucketInitialState: BucketSearchState = {
     page: 0,
     pageSize: 20,
     message: '',
-    labels: []
+    labels: [],
+    autoreloadSeconds: 0
   },
   settings: {
     columns: ['level', 'timestamp', 'labels', 'message'],

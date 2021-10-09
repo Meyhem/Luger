@@ -27,14 +27,16 @@ namespace Luger.Features.Logging
             await logRepository.WriteLogsAsync(bucket, logs);
         }
 
-        public async IAsyncEnumerable<LogRecordDto> QueryLogsAsync(string bucket,
+        public async IAsyncEnumerable<LogRecordDto> QueryLogsAsync(
+            string bucket,
             DateTimeOffset from,
             DateTimeOffset to,
             LogLevel[] levels,
             string message,
             LabelDto[] labels,
             int page,
-            int pageSize)
+            int pageSize
+        )
         {
             bucket = Normalization.NormalizeBucketName(bucket);
             var messagePattern = new Regex(
