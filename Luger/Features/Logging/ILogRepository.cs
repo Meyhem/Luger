@@ -10,5 +10,6 @@ namespace Luger.Features.Logging
         Task WriteLogsAsync(string bucket, IEnumerable<LogRecordDto> logs);
         Task FlushAsync();
         IAsyncEnumerable<LogRecordDto> ReadLogs(string bucket, DateTimeOffset start, DateTimeOffset end);
+        Task<long> EstimateBucketSizeAsync(string bucket);
     }
 }

@@ -7,6 +7,7 @@ using Luger.Common;
 using Luger.Features.Configuration;
 using Luger.Features.Logging;
 using Luger.Features.Logging.FileSystem;
+using Luger.Features.Summary;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -35,8 +36,12 @@ namespace Luger
             services.AddControllers();
             services.AddSwaggerGen();
 
-            services.AddTransient<ILogService, LogService>();
             services.AddSingleton<ILogRepository, FileSystemLogRepository>();
+            services.AddSingleton<ISummaryRepository, SummaryRepository>();
+            
+            services.AddTransient<ILogService, LogService>();
+            services.AddTransient<ISummaryService, SummaryService>();
+            
 
             services.AddAuthentication(auth =>
                 {

@@ -141,6 +141,39 @@ namespace Luger.Features.Logging.FileSystem
             await Task.WhenAll(bucketWriteTasks);
         }
 
+        public Task<long> EstimateBucketSizeAsync(string bucket)
+        {
+            string[] filePaths;
+            var totalSize = 0L;
+            
+            bucket = Normalization.NormalizeBucketName(bucket);
+            
+            try
+            {
+                filePaths = Directory.GetFiles(GetBucketFolder(bucket));
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to enumerate bucket '{Bucket}'", bucket);
+                return Task.FromResult(0L);
+            }
+
+            foreach (var file in filePaths)
+            {
+                try
+                {
+                    var info = new FileInfo(file);
+                    totalSize += info.Length;
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Failed to retrieve file size {FileName}", file);
+                }
+            }
+
+            return Task.FromResult(totalSize);
+        }
+        
         private void DeleteExpiredFiles(BucketOptions bucketOptions)
         {
             var bucket = Normalization.NormalizeBucketName(bucketOptions.Id);
