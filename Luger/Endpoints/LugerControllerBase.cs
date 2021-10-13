@@ -10,13 +10,6 @@ namespace Luger.Endpoints
 {
     public class LugerControllerBase: Controller
     {
-        // private readonly IOptions<LugerOptions> lugerOptions;
-
-        public LugerControllerBase()
-        {
-           
-        }
-        
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             var lugerOptions = HttpContext.RequestServices.GetRequiredService<IOptions<LugerOptions>>();
