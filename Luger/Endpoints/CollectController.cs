@@ -12,7 +12,7 @@ using Microsoft.Extensions.Options;
 namespace Luger.Endpoints
 {
     [Route("api/[controller]")]
-    public class CollectController : Controller
+    public class CollectController : LugerControllerBase
     {
         private readonly ILogService service;
         private readonly LugerOptions options;
@@ -31,12 +31,7 @@ namespace Luger.Endpoints
             [FromBody] Dictionary<string, string>[]? logs)
         {
             logs ??= Array.Empty<Dictionary<string, string>>();
-            if (options.Buckets.All(b =>
-                Normalization.NormalizeBucketName(b.Id) != Normalization.NormalizeBucketName(bucket)))
-            {
-                return Problem(detail: "No such bucket", statusCode: 404);
-            }
-
+            
             await service.AddLogsAsync(
                 Normalization.NormalizeBucketName(bucket),
                 logs.Select(l => LogRecordDto.FromMap(l, DateTimeOffset.UtcNow))

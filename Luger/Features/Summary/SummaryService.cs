@@ -14,6 +14,6 @@ namespace Luger.Features.Summary
 
         public Task AddLogs(string bucket, LogRecordDto[] newLogs) => summaryRepository.AddLogs(bucket, newLogs);
 
-        public Task<BucketSummary> GetBucketSummary(string bucket) => summaryRepository.GetBucketSummary(bucket);
+        public Task<BucketSummary> GetBucketSummaryAsync(string bucket) => summaryRepository.GetBucketSummary(bucket);
     }
 }

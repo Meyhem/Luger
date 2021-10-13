@@ -12,7 +12,7 @@ namespace Luger.Endpoints
 {
     [Route("api/[controller]")]
     // [Authorize]
-    public class SearchController : Controller
+    public class SearchController : LugerControllerBase
     {
         private readonly ILogService logService;
 
@@ -26,8 +26,6 @@ namespace Luger.Endpoints
         [ProducesResponseType(typeof(ProblemDetails), 400)]
         public async Task<IActionResult> GetAsync([FromRoute] string bucket, [FromBody] RequestSearch searchRequest)
         {
-            if (!ModelState.IsValid) return ModelState.ToProblemResult();
-
             searchRequest ??= new RequestSearch();
 
             var labelsDto = searchRequest.Labels
