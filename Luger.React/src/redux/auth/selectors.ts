@@ -25,7 +25,10 @@ export const getDecodedToken = createSelector(getToken, t => {
   }
 })
 
-export const getBuckets = createSelector(getDecodedToken, t => t && _.split(t['Luger.Buckets'], ','))
+export const getBuckets = createSelector(
+  getDecodedToken,
+  t => t && _.sortBy(_.split(t['Luger.Buckets'], ','), _.identity)
+)
 export const getUserId = createSelector(getDecodedToken, t => t?.nameid)
 export const getExpiration = createSelector(getDecodedToken, t => t?.exp)
 export const isAuthenticated = createSelector(

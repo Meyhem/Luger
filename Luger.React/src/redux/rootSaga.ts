@@ -2,11 +2,13 @@ import Axios from 'axios'
 import { all, call } from 'redux-saga/effects'
 import { authSagas } from './auth'
 import { searchSaga } from './search'
+import { summarySaga } from './summary'
 // AUTOIMPORT SAGA
 
 function* allSagas() {
   yield all([
     // AUTOREGISTER SAGA
+    summarySaga(),
     searchSaga(),
     authSagas()
   ])

@@ -5,6 +5,7 @@ import persistReducer from 'redux-persist/es/persistReducer'
 import localStorage from 'redux-persist/lib/storage'
 import { authReducer } from './auth'
 import { searchReducer } from './search'
+import { summaryReducer } from './summary'
 // AUTOIMPORT REDUCER
 const persistedAuthReducer = persistReducer(
   {
@@ -18,6 +19,7 @@ const persistedAuthReducer = persistReducer(
 export const makeRootReducer = (history: History) =>
   combineReducers({
     // AUTOREGISTER REDUCER
+    summary: summaryReducer,
     search: searchReducer,
     router: connectRouter(history),
     auth: persistedAuthReducer
