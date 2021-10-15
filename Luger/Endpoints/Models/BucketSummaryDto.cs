@@ -12,7 +12,8 @@ namespace Luger.Endpoints.Models
         public uint ErrorCount { get; set; }
         public uint CriticalCount { get; set; }
         public uint NoneCount { get; set; }
-        public uint LogCount { get; set; }
+        public uint TotalCount { get; set; }
+        public long SampleSize { get; set; }
         public long BucketSize { get; set; }
         public double CalculatedFromTimespanSeconds { get; set; }
 
@@ -27,7 +28,8 @@ namespace Luger.Endpoints.Models
                 ErrorCount = s.ErrorCount,
                 CriticalCount = s.CriticalCount,
                 NoneCount = s.NoneCount,
-                LogCount = s.LogCount,
+                TotalCount = s.TotalCount,
+                SampleSize = s.SampleSize,
                 BucketSize = s.BucketSize,
                 CalculatedFromTimespanSeconds = s.CalculatedFromTimespan.TotalSeconds
             };

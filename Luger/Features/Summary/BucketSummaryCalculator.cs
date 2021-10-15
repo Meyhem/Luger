@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Luger.Common;
@@ -32,10 +33,10 @@ namespace Luger.Features.Summary
             {
                 await semaphore.WaitAsync();
                 
-                var logSpan = newLogs[..MaxLogHistory];
+                var logSpan = newLogs.Take(MaxLogHistory).ToArray();
                 var overflowingCount = Math.Clamp(logList.Count + logSpan.Length - MaxLogHistory, 0, MaxLogHistory);
-                for (var i = 0; i < overflowingCount; i++) logList.RemoveLast();
-                foreach (var newLog in logSpan) logList.AddFirst(new LinkedListNode<LogRecordDto>(newLog));
+                for (var i = 0; i < overflowingCount; i++) logList.RemoveFirst();
+                foreach (var newLog in logSpan) logList.AddLast(new LinkedListNode<LogRecordDto>(newLog));
             }
             finally
             {
@@ -56,12 +57,12 @@ namespace Luger.Features.Summary
                 bucket = Normalization.NormalizeBucketName(bucket);
                 
                 cachedSummary = new BucketSummary();
-
+                cachedSummary.SampleSize = logList.Count;
                 foreach (var log in logList) CalculateLogSummary(cachedSummary, log);
 
                 // has at least two items
                 if (logList.Count > 1) CalculateLogListSummary(cachedSummary, logList);
-
+                
                 await CalculateBucketSizeAsync(cachedSummary, bucket);
                 
                 lastStatCalculation = DateTimeOffset.UtcNow;

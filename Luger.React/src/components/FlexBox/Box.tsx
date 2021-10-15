@@ -1,17 +1,17 @@
 import styled from 'styled-components/macro'
 import {
-  space,
-  layout,
-  typography,
-  color,
-  flexbox,
   border,
-  SpaceProps,
-  LayoutProps,
-  TypographyProps,
+  BorderProps,
+  color,
   ColorProps,
+  flexbox,
   FlexboxProps,
-  BorderProps
+  layout,
+  LayoutProps,
+  space,
+  SpaceProps,
+  typography,
+  TypographyProps
 } from 'styled-system'
 
 type StyledProps = SpaceProps & LayoutProps & TypographyProps & ColorProps & FlexboxProps & BorderProps
@@ -23,6 +23,7 @@ export type BoxProps = React.PropsWithChildren<
 >
 
 export const Box = styled.div<BoxProps>`
+  width: 100%;
   box-sizing: 'border-box';
   min-width: 0;
 

@@ -12,7 +12,7 @@ namespace Luger.Features.Summary
         public uint CriticalCount { get; set; }
         public uint NoneCount { get; set; }
 
-        public uint LogCount => TraceCount + 
+        public uint TotalCount => TraceCount + 
                                 DebugCount + 
                                 InformationCount + 
                                 WarningCount + 
@@ -20,6 +20,7 @@ namespace Luger.Features.Summary
                                 CriticalCount +
                                 NoneCount;
 
+        public int SampleSize { get; set; }
         public long BucketSize { get; set; }
         public TimeSpan CalculatedFromTimespan { get; set; }
 

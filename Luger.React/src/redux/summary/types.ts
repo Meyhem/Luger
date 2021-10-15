@@ -6,7 +6,8 @@ export type BucketSummary = {
   errorCount: number
   criticalCount: number
   noneCount: number
-  logCount: number
+  totalCount: number
+  sampleSize: number
   bucketSize: number
   calculatedFromTimespanSeconds: number
 }

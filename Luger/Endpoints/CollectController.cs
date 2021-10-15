@@ -6,6 +6,7 @@ using Luger.Common;
 using Luger.Features.Configuration;
 using Luger.Features.Logging;
 using Luger.Features.Logging.Dto;
+using Luger.Features.Summary;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -15,11 +16,13 @@ namespace Luger.Endpoints
     public class CollectController : LugerControllerBase
     {
         private readonly ILogService service;
+        private readonly ISummaryService summaryService;
         private readonly LugerOptions options;
 
-        public CollectController(ILogService service, IOptions<LugerOptions> options)
+        public CollectController(ILogService service, ISummaryService summaryService, IOptions<LugerOptions> options)
         {
             this.service = service;
+            this.summaryService = summaryService;
             this.options = options.Value;
         }
 
@@ -31,10 +34,14 @@ namespace Luger.Endpoints
             [FromBody] Dictionary<string, string>[]? logs)
         {
             logs ??= Array.Empty<Dictionary<string, string>>();
+
+            var mapped = logs.Select(l => LogRecordDto.FromMap(l, DateTimeOffset.UtcNow)).ToArray();
+
+            await summaryService.AddLogsAsync(bucket, mapped);
             
             await service.AddLogsAsync(
                 Normalization.NormalizeBucketName(bucket),
-                logs.Select(l => LogRecordDto.FromMap(l, DateTimeOffset.UtcNow))
+                mapped
             );
 
             return NoContent();

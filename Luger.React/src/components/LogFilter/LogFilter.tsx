@@ -103,7 +103,7 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
         })
       )
     }, Math.max(settings.autoSubmitDelay ?? 1500, 200)),
-    [settings.autoSubmitDelay]
+    [settings.autoSubmitDelay, bucket]
   )
 
   const autoReloadTimes = useMemo(
