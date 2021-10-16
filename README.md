@@ -23,19 +23,25 @@ Provides rich searching capabilities for structures logs while keeping minimal p
 # First steps
 ## 1. Choose hosting option
 ### Windows IIS
-Pick [Release](https://github.com/Meyhem/Luger/releases) binary, configure it and start it as IIS site (web.config is included).  
+1. Pick [Release](https://github.com/Meyhem/Luger/releases) binary
+2. Create IIS Site
+3. Copy content of release binary to created IIS site 
+4. Configure Luger (see [Configure](#2-configure) section) 
+5. Start Site  
+
 Mind that IIS process must be able to write into StorageDirectory. By default it's **./logs**
 
 ### Linux SystemD
 1. Pick [Release](https://github.com/Meyhem/Luger/releases) binary (preferably luger_single_file_runtime_linux-x64.tar.gz)
 2. Unpack (```tar -xvf ...```) the archive to /opt/luger_single_file_runtime_linux-x64
-3. Prepare unit file ([example here](https://github.com/Meyhem/Luger/blob/master/luger.service)) and copy it to directory where your SystemD units reside e.g. ```/etc/systemd/system/luger.service``` 
-4. ```systemctl enable luger```
-5. ```systemctl start luger```
-6. ```systemctl status luger```
+3. Prepare unit file ([example here](https://github.com/Meyhem/Luger/blob/master/luger.service)) and copy it to directory where your SystemD units reside e.g. ```/etc/systemd/system/luger.service```
+4. Configure Luger (see [Configure](#2-configure) section)
+5. ```systemctl enable luger```
+6. ```systemctl start luger```
+7. ```systemctl status luger```
 
 ### Docker
-Single command run (good for looking around)    
+Single command run (good for looking around), contains preconfigured user and bucket.    
 username: _admin_  
 password: _admin_
 ```sh 
@@ -45,12 +51,12 @@ docker run -p 7931:7931 --env Luger__Users__0__Id="admin" --env Luger__Users__0_
 ```
 
 ### Docker-compose
-Download [compose file](https://github.com/Meyhem/Luger/blob/master/docker-compose.yaml) as docker-compose.yml and 
+Download [example compose file](https://github.com/Meyhem/Luger/blob/master/docker-compose.yaml) as docker-compose.yml  
+It contains preconfigured user and bucket, if you want to access full JSON configuration see provisioning in [Configure](#2-configure) section.
+
 ```sh
 docker-compose up
 ```
-
-
 
 ## 2. Configure
 Luger already preconfigures most values for you in **luger.json**, it's up to you to do the rest.  
