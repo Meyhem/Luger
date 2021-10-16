@@ -88,7 +88,7 @@ export const Layout: FC<LayoutProps> = ({ children, heading }) => {
             return (
               <Link key={b} to={bucketPath}>
                 <SiderItem active={isActiveItem} clickable>
-                  {isActiveItem && <>&raquo;</>} Bucket/{b}
+                  {isActiveItem && <>&raquo;</>} {'\u{1FAA3}'} {b}
                 </SiderItem>
               </Link>
             )

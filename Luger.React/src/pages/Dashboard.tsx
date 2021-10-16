@@ -22,8 +22,8 @@ export function DashboardPage() {
     <Layout>
       <Flex>
         {_.map(summaryMap, ([bucket, bucketSummary]) => (
-          <Flex width={1 / 2}>
-            <BucketSummaryBlock key={bucket} bucket={bucket} summary={bucketSummary} />
+          <Flex width={1 / 3} key={bucket}>
+            <BucketSummaryBlock bucket={bucket} summary={bucketSummary} />
           </Flex>
         ))}
       </Flex>

@@ -56,9 +56,14 @@ namespace Luger.Features.Logging
                               (string.IsNullOrEmpty(message) || MatchesMessage(log, messagePattern)) &&
                               (labels.IsNullOrEmpty() || MatchesLabels(log, labels));
 
+                // mismatches doesn't count into paging
                 if (!isMatch) continue;
                 nlog++;
+                // skip desired count
                 if (nlog < toSkip) continue;
+                
+                // take only desired amount
+                if (nlog - toSkip > pageSize) yield break;
 
                 yield return log;
             }

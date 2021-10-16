@@ -1,6 +1,11 @@
 import _ from 'lodash'
-import styled from 'styled-components/macro'
+import { generatePath } from 'react-router'
+import { Link } from 'react-router-dom'
+import styled, { css } from 'styled-components/macro'
 import { BucketSummary } from '../../redux/summary'
+import { themeColor } from '../../theme'
+import { formatApproxByteSize, formatApproxTimespan } from '../../utils/math'
+import { Routes } from '../../utils/routes'
 
 type BucketSummaryBlockProps = {
   bucket: string
@@ -14,27 +19,62 @@ const Container = styled.div`
   align-items: center;
   border: 1px solid #aaaaaa;
   margin: 6px;
+  box-shadow: 2px 2px 3px 0px #000000;
+  border-radius: 4px;
 `
 
-const Heading = styled.div`
+const Title = styled.div`
   width: 100%;
   display: flex;
   justify-content: center;
+  align-items: center;
 
+  margin-bottom: 12px;
   font-size: 24px;
-  font-weight: bold;
 `
+
+const SubTitle = styled.i``
 
 const SummaryTable = styled.table`
   width: 100%;
   thead th {
     width: calc(100% / 3);
     text-align: left;
+    color: ${themeColor('primary')};
   }
 
-  tbody tr:not(:last-child) {
-    border-bottom: 1px solid #ddd;
+  tbody tr {
+    td:first-child {
+      padding-left: 12px;
+      color: ${themeColor('primary')};
+    }
+
+    &:not(:last-child) {
+      border-bottom: 1px solid #ddd;
+    }
   }
+`
+
+const SummaryItem = styled.div`
+  display: flex;
+  width: 100%;
+`
+const summaryItemCss = css`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50%;
+  padding: 15px;
+`
+
+const SummaryItemName = styled.div`
+  ${summaryItemCss};
+  font-weight: bold;
+`
+
+const SummaryItemValue = styled.div`
+  ${summaryItemCss};
+  font-size: 16px;
 `
 
 function calcRatio(count: number, total: number) {
@@ -46,40 +86,85 @@ function calcRatio(count: number, total: number) {
 export const BucketSummaryBlock = ({ bucket, summary }: BucketSummaryBlockProps) => {
   return (
     <Container>
-      <Heading>{bucket}</Heading>
+      <Title>
+        <Link to={generatePath(Routes.Bucket, { bucket })}>
+          <b>{bucket}</b>
+        </Link>
+      </Title>
+      <SubTitle>
+        {summary.sampleSize === 0 ? (
+          <>No data</>
+        ) : (
+          <>
+            Sample of {summary.totalCount} over period of {formatApproxTimespan(summary.calculatedFromTimespanSeconds)}
+          </>
+        )}
+      </SubTitle>
       <SummaryTable>
         <thead>
           <tr>
-            <th></th> <th>Sample of {summary.sampleSize}</th> <th>Rate</th>
+            <th></th>
+            <th>Count</th>
+            <th>Rate</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Trace</td> <td>{summary.traceCount}</td> <td>{calcRatio(summary.traceCount, summary.totalCount)}</td>
+            <td>
+              <b>Trace</b>
+            </td>
+            <td>{summary.traceCount}</td>
+            <td>{calcRatio(summary.traceCount, summary.totalCount)}</td>
           </tr>
           <tr>
-            <td>Debug</td> <td>{summary.debugCount}</td> <td>{calcRatio(summary.debugCount, summary.totalCount)}</td>
+            <td>
+              <b>Debug</b>
+            </td>
+            <td>{summary.debugCount}</td>
+            <td>{calcRatio(summary.debugCount, summary.totalCount)}</td>
           </tr>
           <tr>
-            <td>Information</td> <td>{summary.informationCount}</td>{' '}
+            <td>
+              <b>Information</b>
+            </td>
+            <td>{summary.informationCount}</td>
             <td>{calcRatio(summary.informationCount, summary.totalCount)}</td>
           </tr>
           <tr>
-            <td>Warning</td> <td>{summary.warningCount}</td>{' '}
+            <td>
+              <b>Warning</b>
+            </td>
+            <td>{summary.warningCount}</td>
             <td>{calcRatio(summary.warningCount, summary.totalCount)}</td>
           </tr>
           <tr>
-            <td>Error</td> <td>{summary.errorCount}</td> <td>{calcRatio(summary.errorCount, summary.totalCount)}</td>
+            <td>
+              <b>Error</b>
+            </td>
+            <td>{summary.errorCount}</td>
+            <td>{calcRatio(summary.errorCount, summary.totalCount)}</td>
           </tr>
           <tr>
-            <td>Critical</td> <td>{summary.criticalCount}</td>{' '}
+            <td>
+              <b>Critical</b>
+            </td>
+            <td>{summary.criticalCount}</td>
             <td>{calcRatio(summary.criticalCount, summary.totalCount)}</td>
           </tr>
           <tr>
-            <td>None</td> <td>{summary.noneCount}</td> <td>{calcRatio(summary.noneCount, summary.totalCount)}</td>
+            <td>
+              <b>None</b>
+            </td>
+            <td>{summary.noneCount}</td>
+            <td>{calcRatio(summary.noneCount, summary.totalCount)}</td>
           </tr>
         </tbody>
       </SummaryTable>
+
+      <SummaryItem>
+        <SummaryItemName>Used space</SummaryItemName>
+        <SummaryItemValue>{formatApproxByteSize(summary.bucketSize)}</SummaryItemValue>
+      </SummaryItem>
     </Container>
   )
 }
