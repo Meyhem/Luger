@@ -23,11 +23,14 @@ Provides rich searching capabilities for structures logs while keeping minimal p
 # First steps
 ## 1. Choose hosting option
 ### Windows IIS
-1. Pick [Release](https://github.com/Meyhem/Luger/releases) binary
-2. Create IIS Site
-3. Copy content of release binary to created IIS site 
-4. Configure Luger (see [Configure](#2-configure) section) 
-5. Start Site  
+1. Have IIS installed with AspNetCoreModuleV2 (Part of ASP.NET Core 5.0 Runtime Windows Hosting Bundle Installer)
+2. Pick [Release](https://github.com/Meyhem/Luger/releases) binary (Don't pick single\_file ones, IIS doesn't support them)
+3. Create IIS Site
+4. Copy content of release binary to created IIS site 
+5. Configure Luger (see [Configure](#2-configure) section)
+6. Set Access rights for IIS User to be able to write to data folder "StorageDirectory"
+![Access rights windows](https://raw.githubusercontent.com/Meyhem/Luger/master/.github/windows_iis_setup.png)
+7. Start Site  
 
 Mind that IIS process must be able to write into StorageDirectory. By default it's **./logs**
 
@@ -157,6 +160,7 @@ Preferred place for your configuration is **luger-override.json**.
 ### 1. I'm getting ArgumentException at startup
 Mostly caused by invalid configuration, missing user or bucket. Message should guide you.  
 See [Configure](#2-configure) section
+
 ### 2. How do I choose release binary 
 - **no_runtime** - Package doesn't contain .net runtime, you must install it on your hosting platform and start Luger via ```dotnet Luger.dll```
 - **runtime** - larger package, but contain .net runtime, no need to install any
@@ -166,6 +170,16 @@ See [Configure](#2-configure) section
 - **linux-arm** - only for 32-bit arm linux
 - **linux-arm64** - only for 64-bit arm linux
 - **osx-x64** - only for 64-bit osx
+
+### 3. IIS Troubleshooting
+Luger logs it's internal logs to stdout by default. To be able to view them on IIS we need to enable stdout logging.
+1. Open web.config present at site root
+2. Set ```stdoutLogEnabled="true"```  
+![IIS enable logging](https://raw.githubusercontent.com/Meyhem/Luger/master/.github/windows_iis_setup.png)
+3. Save
+4. Restart APP Pool & Site (or exec ```iisreset``` from Admin CLI)
+5. Try to access application from browser again
+6. _logs_ folder in site root should be created containing exception info (most likely you screwed up configuration, refer to [Configure](#2-configure) section)
 
 # Developer
 ## Building container
