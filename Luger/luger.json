@@ -12,7 +12,7 @@
   },
   "Luger": {
     "FlushIntervalSeconds": "5",
-    "StorageDirectory": "./logs",
+    "StorageDirectory": "./luger-data",
     "Users": [],
     "Buckets": []
   }

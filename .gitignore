@@ -3,6 +3,7 @@ obj/
 /packages/
 wwwroot
 logs/
+luger-data/
 .vs
 *.csproj.user
 .idea

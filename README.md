@@ -32,7 +32,7 @@ Provides rich searching capabilities for structures logs while keeping minimal p
 ![Access rights windows](https://raw.githubusercontent.com/Meyhem/Luger/master/.github/windows_iis_setup.png)
 7. Start Site  
 
-Mind that IIS process must be able to write into StorageDirectory. By default it's **./logs**
+Mind that IIS process must be able to write into StorageDirectory. By default it's **./luger-data** in application root.
 
 ### Linux SystemD
 1. Pick [Release](https://github.com/Meyhem/Luger/releases) binary (preferably luger_single_file_runtime_linux-x64.tar.gz)
@@ -131,7 +131,7 @@ Preferred place for your configuration is **luger-override.json**.
     // How often should luger flush logs to files 
     "FlushIntervalSeconds": "5",
     // Path to directory where Luger stores logs
-    "StorageDirectory": "./logs",
+    "StorageDirectory": "./luger-data",
     // List of users to be allowed to view logs
     "Users": [
       {
