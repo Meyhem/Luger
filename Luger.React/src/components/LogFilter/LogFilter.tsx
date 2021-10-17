@@ -8,7 +8,7 @@ import { FieldArray } from 'react-final-form-arrays'
 import { useDispatch, useSelector } from 'react-redux'
 import styled from 'styled-components/macro'
 import { forceNumber } from '../../form/utils'
-import { LabelFilter, LogLevel, SearchActions } from '../../redux/search'
+import { bucketInitialState, LabelFilter, LogLevel, SearchActions } from '../../redux/search'
 import { selectFilter, selectSettings } from '../../redux/search/selectors'
 import { RootState } from '../../redux/types'
 import { themeColor } from '../../theme'
@@ -81,7 +81,7 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
         reloadIntervalHandleRef.current = null
       }
     },
-    [bucket]
+    [bucket, filter]
   )
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -293,7 +293,7 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
                   />
                 </Section>
 
-                <Section width="70%" flexDirection="column" alignItems="flex-start">
+                <Section width="50%" flexDirection="column" alignItems="flex-start">
                   <Text color="primary" bold>
                     Labels
                   </Text>
@@ -322,7 +322,7 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
                   )}
                 </Section>
 
-                <Section width="30%" alignItems="flex-end">
+                <Section width="30%" alignItems="flex-end" justifyContent="flex-end">
                   <Button onClick={createPageNavHandler(-1)} htmlType="button">
                     &laquo;
                   </Button>
@@ -356,6 +356,28 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
                       />
                     )}
                   />
+                </Section>
+                <Section width="20%" alignItems="flex-end">
+                  <Flex width="auto">
+                    <Button
+                      htmlType="button"
+                      variant="default"
+                      onClick={() =>
+                        d(
+                          SearchActions.setFilter({
+                            bucket: bucket,
+                            filter: {
+                              ...bucketInitialState.filter,
+                              from: dayjs().subtract(15, 'minutes').toJSON(),
+                              to: new Date().toJSON()
+                            }
+                          })
+                        )
+                      }
+                    >
+                      Reset all filters
+                    </Button>
+                  </Flex>
                 </Section>
               </Flex>
             </form>

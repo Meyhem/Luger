@@ -58,7 +58,7 @@ export const LogTableSettings = ({ bucket }: LogTableSettingsProps) => {
           return (
             <form onSubmit={handleSubmit}>
               <FormSpy onChange={form.submit} subscription={{ values: true }} />
-              <Flex flexWrap="wrap">
+              <Flex flexWrap="wrap" alignItems="center">
                 <Section width="20%">
                   <Field
                     name="wide"

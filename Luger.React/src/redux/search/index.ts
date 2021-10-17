@@ -1,4 +1,4 @@
 export { SearchActions } from './actions'
-export { searchReducer } from './reducer'
-export * from './types'
+export { bucketInitialState, searchReducer } from './reducer'
 export { searchSaga } from './sagas'
+export * from './types'

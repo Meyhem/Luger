@@ -16,11 +16,20 @@ const persistedAuthReducer = persistReducer(
   authReducer
 )
 
+const persistedSearchReducer = persistReducer(
+  {
+    key: 'search',
+    // whitelist: ['token'],
+    storage: localStorage
+  },
+  searchReducer
+)
+
 export const makeRootReducer = (history: History) =>
   combineReducers({
     // AUTOREGISTER REDUCER
     summary: summaryReducer,
-    search: searchReducer,
+    search: persistedSearchReducer,
     router: connectRouter(history),
     auth: persistedAuthReducer
   })

@@ -19,7 +19,7 @@ export const bucketInitialState: BucketSearchState = {
   settings: {
     columns: ['level', 'timestamp', 'labels', 'message'],
     autoSubmitDelay: 1500,
-    wide: false
+    wide: true
   },
   loading: false,
   logs: []
@@ -34,7 +34,7 @@ export const searchReducer: Reducer<SearchState, SearchActions> = (state = initi
     case getType(SearchActions.resetFilter):
       return setBucketState(state, action.payload.bucket, bucketInitialState)
     case getType(SearchActions.setFilter):
-      return setBucketState(state, action.payload.bucket, { filter: action.payload.filter })
+      return setBucketState(state, action.payload.bucket, { filter: { ...action.payload.filter } })
     case getType(SearchActions.addLabelFilter):
       return setBucketState(state, action.payload.bucket, {
         filter: {
