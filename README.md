@@ -175,7 +175,7 @@ See [Configure](#2-configure) section
 Luger logs it's internal logs to stdout by default. To be able to view them on IIS we need to enable stdout logging.
 1. Open web.config present at site root
 2. Set ```stdoutLogEnabled="true"```  
-![IIS enable logging](https://raw.githubusercontent.com/Meyhem/Luger/master/.github/windows_iis_setup.png)
+![IIS enable logging](https://raw.githubusercontent.com/Meyhem/Luger/master/.github/iis_logs_enable.png)
 3. Save
 4. Restart APP Pool & Site (or exec ```iisreset``` from Admin CLI)
 5. Try to access application from browser again
