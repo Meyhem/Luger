@@ -35,7 +35,8 @@ namespace Luger.Features.Logging
             string message,
             LabelDto[] labels,
             int page,
-            int pageSize
+            int pageSize,
+            CursorDto cursor
         )
         {
             bucket = Normalization.NormalizeBucketName(bucket);
@@ -49,7 +50,7 @@ namespace Luger.Features.Logging
             var toSkip = pageSize * page;
             var nlog = 0;
 
-            await foreach (var log in logRepository.ReadLogs(bucket, from, to))
+            await foreach (var log in logRepository.ReadLogs(bucket, from, to, cursor))
             {
                 var isMatch = MatchesTimestampRange(log, from, to) &&
                               (levels.IsNullOrEmpty() || MatchesLevels(log, levels)) &&
@@ -61,7 +62,7 @@ namespace Luger.Features.Logging
                 nlog++;
                 // skip desired count
                 if (nlog < toSkip) continue;
-                
+
                 // take only desired amount
                 if (nlog - toSkip > pageSize) yield break;
 

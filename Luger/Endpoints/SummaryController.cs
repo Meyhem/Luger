@@ -23,7 +23,7 @@ namespace Luger.Endpoints
                 Normalization.NormalizeBucketName(bucket)
             );
 
-            return Ok(BucketSummaryDto.From(result));
+            return Ok(BucketSummary.From(result));
         }
     }
 }

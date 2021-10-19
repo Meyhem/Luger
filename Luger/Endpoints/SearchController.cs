@@ -36,17 +36,33 @@ namespace Luger.Endpoints
                     Value = l.Value!
                 });
 
-            var logs = logService.QueryLogsAsync(bucket,
+            var cursor = new CursorDto
+            {
+                Shard = searchRequest.Cursor?.Shard ?? "",
+                Offset = searchRequest.Cursor?.Offset ?? 0
+            };
+
+            var logs = logService.QueryLogsAsync(
+                bucket,
                 searchRequest.From,
                 searchRequest.To,
                 searchRequest.Levels.Select(Enum.Parse<LogLevel>).ToArray(),
                 searchRequest.Message,
                 labelsDto.ToArray(),
                 searchRequest.Page,
-                searchRequest.PageSize
-            );
+                searchRequest.PageSize,
+                cursor
+            ).ToArrayAsync();
 
-            return Ok(new ResponseSearch {Logs = await logs.ToArrayAsync()});
+            return Ok(new ResponseSearch
+            {
+                Logs = await logs,
+                Cursor = new Cursor
+                {
+                    Offset = cursor.Offset,
+                    Shard = cursor.Shard
+                }
+            });
         }
     }
 }

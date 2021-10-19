@@ -3,7 +3,7 @@ using Luger.Features.Summary;
 
 namespace Luger.Endpoints.Models
 {
-    public class BucketSummaryDto
+    public class BucketSummary
     {
         public uint TraceCount { get; set; }
         public uint DebugCount { get; set; }
@@ -17,9 +17,9 @@ namespace Luger.Endpoints.Models
         public long BucketSize { get; set; }
         public double CalculatedFromTimespanSeconds { get; set; }
 
-        public static BucketSummaryDto From(BucketSummary s)
+        public static BucketSummary From(Features.Summary.BucketSummaryDto s)
         {
-            return new BucketSummaryDto
+            return new BucketSummary
             {
                 TraceCount = s.TraceCount,
                 DebugCount = s.DebugCount,

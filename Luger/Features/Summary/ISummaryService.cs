@@ -6,6 +6,6 @@ namespace Luger.Features.Summary
     public interface ISummaryService
     {
         Task AddLogsAsync(string bucket, LogRecordDto[] newLogs);
-        Task<BucketSummary> GetBucketSummaryAsync(string bucket);
+        Task<BucketSummaryDto> GetBucketSummaryAsync(string bucket);
     }
 }

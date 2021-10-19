@@ -2,7 +2,7 @@
 
 namespace Luger.Features.Summary
 {
-    public class BucketSummary
+    public class BucketSummaryDto
     {
         public uint TraceCount { get; set; }
         public uint DebugCount { get; set; }

@@ -96,7 +96,7 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
             to: values.to.toJSON(),
             page: values.page || 0,
             pageSize: values.pageSize || 50,
-            message: values.message,
+            message: values.message ?? '',
             labels: _.map(values.labels, l => ({ name: l.name, value: l.value })),
             autoreloadSeconds: values.autoreloadSeconds
           }

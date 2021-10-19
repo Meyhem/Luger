@@ -17,6 +17,7 @@ namespace Luger.Features.Logging
             string message,
             LabelDto[] labels,
             int page,
-            int pageSize);
+            int pageSize,
+            CursorDto cursor);
     }
 }

@@ -20,5 +20,7 @@ namespace Luger.Endpoints.Models
 
         public int Page { get; set; }
         public int PageSize { get; set; }
+
+        public Cursor? Cursor { get; set; }
     }
 }

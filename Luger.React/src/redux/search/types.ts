@@ -22,10 +22,16 @@ export type TableSettings = {
   columns: string[]
 }
 
+export type Cursor = {
+  shard: string
+  offset: number
+}
+
 export type SearchState = Record<string, BucketSearchState>
 
 export type BucketSearchState = {
   filter: Filter
+  cursor?: Cursor
   logs: LogRecord[]
   settings: TableSettings
 } & LoadingState

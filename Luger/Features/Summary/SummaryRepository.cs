@@ -25,7 +25,7 @@ namespace Luger.Features.Summary
             await calculator.AddLogsAsync(newLogs);
         }
         
-        public async Task<BucketSummary> GetBucketSummary(string bucket)
+        public async Task<BucketSummaryDto> GetBucketSummary(string bucket)
         {
             bucket = Normalization.NormalizeBucketName(bucket);
 

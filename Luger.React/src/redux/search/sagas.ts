@@ -5,8 +5,8 @@ import { all, put, select, takeLatest } from 'redux-saga/effects'
 import { getType } from 'typesafe-actions'
 import { apiCall } from '../../utils/api'
 import { SearchActions } from './actions'
-import { selectFilter } from './selectors'
-import { Filter, LogLevel, LogRecord } from './types'
+import { selectCursor, selectFilter } from './selectors'
+import { Cursor, Filter, LogLevel, LogRecord } from './types'
 
 export type LogRecordResponse = {
   level: string
@@ -26,24 +26,41 @@ export function mapLogRecordResponse(logs: LogRecordResponse[]): LogRecord[] {
 
 export function* load({ payload }: ReturnType<typeof SearchActions.load>) {
   const filters: Filter = yield select(state => selectFilter(state, payload.bucket))
+  const cursor: Cursor | undefined = yield select(state => selectCursor(state, payload.bucket))
 
   if (filters.autoreloadSeconds) {
     filters.to = dayjs().utc().toJSON()
   }
 
-  const response: AxiosResponse<{ logs: LogRecordResponse[] }> = yield apiCall({
+  const response: AxiosResponse<{ logs: LogRecordResponse[]; cursor: Cursor }> = yield apiCall({
     method: 'post',
     url: `/api/search/${payload.bucket}`,
-    data: { ...filters }
+    data: { ...filters, cursor: cursor }
   })
 
   yield put(
-    SearchActions.setLogs({ bucket: payload.bucket, logs: mapLogRecordResponse(_.reverse(response.data.logs)) })
+    SearchActions.setLogs({
+      bucket: payload.bucket,
+      logs: mapLogRecordResponse(_.reverse(response.data.logs))
+    })
+  )
+
+  yield put(
+    SearchActions.setCursor({
+      bucket: payload.bucket,
+      cursor: response.data.cursor
+    })
   )
 }
 
-export function* reload({ payload }: ReturnType<typeof SearchActions.setFilter>) {
-  yield put(SearchActions.setLogs({ bucket: payload.bucket, logs: [] }))
+export function* reload({ payload }: ReturnType<typeof SearchActions.setFilter | typeof SearchActions.addLabelFilter>) {
+  yield put(
+    SearchActions.setLogs({
+      bucket: payload.bucket,
+      logs: []
+    })
+  )
+
   yield load(SearchActions.load({ bucket: payload.bucket }))
 }
 

@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import _ from 'lodash'
 import { getType, Reducer } from 'typesafe-actions'
 import { SearchActions } from './actions'
 import { BucketSearchState, SearchState } from './types'
@@ -34,13 +35,23 @@ export const searchReducer: Reducer<SearchState, SearchActions> = (state = initi
     case getType(SearchActions.resetFilter):
       return setBucketState(state, action.payload.bucket, bucketInitialState)
     case getType(SearchActions.setFilter):
+      const bucketFilter = state[action.payload.bucket].filter
+      // If only page has changed, the keep the cursor to be used for fast search
+      if (
+        bucketFilter.page !== action.payload.filter.page &&
+        _.isEqual(_.omit(bucketFilter, 'page'), _.omit(action.payload.filter, 'page'))
+      ) {
+        return setBucketState(state, action.payload.bucket, { filter: { ...action.payload.filter }, cursor: undefined })
+      }
+
       return setBucketState(state, action.payload.bucket, { filter: { ...action.payload.filter } })
     case getType(SearchActions.addLabelFilter):
       return setBucketState(state, action.payload.bucket, {
         filter: {
           ...state[action.payload.bucket].filter,
           labels: [...state[action.payload.bucket].filter.labels, action.payload]
-        }
+        },
+        cursor: undefined
       })
     case getType(SearchActions.setLogs):
       return setBucketState(state, action.payload.bucket, {

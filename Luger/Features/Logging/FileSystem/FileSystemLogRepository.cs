@@ -58,7 +58,12 @@ namespace Luger.Features.Logging.FileSystem
             return Task.CompletedTask;
         }
 
-        public async IAsyncEnumerable<LogRecordDto> ReadLogs(string bucket, DateTimeOffset start, DateTimeOffset end)
+        public async IAsyncEnumerable<LogRecordDto> ReadLogs(
+            string bucket,
+            DateTimeOffset start,
+            DateTimeOffset end,
+            CursorDto cursor
+        )
         {
             bucket = Normalization.NormalizeBucketName(bucket);
             var bucketFolder = GetBucketFolder(bucket);
@@ -77,7 +82,9 @@ namespace Luger.Features.Logging.FileSystem
 
             // if found take previous file
             // if not found take last file 
-            startIndexCandidate = startIndexCandidate < 0 ? orderedFileCandidates.Count - 1 : Math.Max(startIndexCandidate - 1, 0);
+            startIndexCandidate = startIndexCandidate < 0
+                ? orderedFileCandidates.Count - 1
+                : Math.Max(startIndexCandidate - 1, 0);
 
             // filter candidates that can contain selected time range
             var filesToRead = orderedFileCandidates
@@ -85,11 +92,20 @@ namespace Luger.Features.Logging.FileSystem
                 .Where(fileCandidate => fileCandidate.Stamp <= end)
                 .Select(fileCandidate => fileCandidate.Path);
 
+            if (!cursor.Shard.IsNullOrEmpty())
+            {
+                filesToRead = filesToRead.SkipWhile(f => Path.GetFileName(f) != cursor.Shard);
+            }
+            
             foreach (var file in filesToRead)
             {
+                var filename = Path.GetFileName(file);
                 logger.LogInformation("Reading file {File}", file);
 
-                await using var fileStream = OpenLogFileRead(bucket, Path.GetFileName(file));
+                await using var fileStream = OpenLogFileRead(bucket, filename);
+                fileStream.Seek(cursor.Offset, SeekOrigin.Begin);
+                cursor.Shard = filename;
+
                 var logStream = ReadLog(fileStream);
                 using var logStreamEnumerator = logStream.GetEnumerator();
 
@@ -99,6 +115,7 @@ namespace Luger.Features.Logging.FileSystem
                     {
                         var hasNext = logStreamEnumerator.MoveNext();
                         if (!hasNext) break;
+                        cursor.Offset = fileStream.Position;
                     }
                     catch (Exception ex)
                     {
@@ -108,7 +125,11 @@ namespace Luger.Features.Logging.FileSystem
 
                     yield return logStreamEnumerator.Current;
                 }
+
+                cursor.Offset = 0;
             }
+
+            cursor.Shard = string.Empty;
         }
 
         public async Task FlushAsync()
@@ -145,9 +166,9 @@ namespace Luger.Features.Logging.FileSystem
         {
             string[] filePaths;
             var totalSize = 0L;
-            
+
             bucket = Normalization.NormalizeBucketName(bucket);
-            
+
             try
             {
                 filePaths = Directory.GetFiles(GetBucketFolder(bucket));
@@ -173,7 +194,7 @@ namespace Luger.Features.Logging.FileSystem
 
             return Task.FromResult(totalSize);
         }
-        
+
         private void DeleteExpiredFiles(BucketOptions bucketOptions)
         {
             var bucket = Normalization.NormalizeBucketName(bucketOptions.Id);
@@ -209,7 +230,7 @@ namespace Luger.Features.Logging.FileSystem
             using var streamReader = new StreamReader(stream);
             using var jsonReader = new JsonTextReader(streamReader);
             jsonReader.SupportMultipleContent = true;
-
+            
             while (jsonReader.Read())
             {
                 if (jsonReader.TokenType == JsonToken.StartObject)

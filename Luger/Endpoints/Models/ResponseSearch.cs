@@ -7,5 +7,6 @@ namespace Luger.Endpoints.Models
     public class ResponseSearch
     {
         public IEnumerable<LogRecordDto> Logs { get; set; } = Array.Empty<LogRecordDto>();
+        public Cursor Cursor { get; set; }
     }
 }

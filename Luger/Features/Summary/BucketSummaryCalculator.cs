@@ -20,7 +20,7 @@ namespace Luger.Features.Summary
         private readonly SemaphoreSlim semaphore = new(1, 1);
 
         private DateTimeOffset? lastStatCalculation;
-        private BucketSummary? cachedSummary;
+        private BucketSummaryDto? cachedSummary;
 
         public BucketSummaryCalculator(ILogRepository logRepository)
         {
@@ -44,7 +44,7 @@ namespace Luger.Features.Summary
             }
         }
 
-        public async Task<BucketSummary> CalculateAsync(string bucket)
+        public async Task<BucketSummaryDto> CalculateAsync(string bucket)
         {
             try
             {
@@ -56,7 +56,7 @@ namespace Luger.Features.Summary
 
                 bucket = Normalization.NormalizeBucketName(bucket);
                 
-                cachedSummary = new BucketSummary();
+                cachedSummary = new BucketSummaryDto();
                 cachedSummary.SampleSize = logList.Count;
                 foreach (var log in logList) CalculateLogSummary(cachedSummary, log);
 
@@ -75,42 +75,42 @@ namespace Luger.Features.Summary
             }
         }
 
-        private void CalculateLogSummary(BucketSummary summary, LogRecordDto log)
+        private void CalculateLogSummary(BucketSummaryDto summaryDto, LogRecordDto log)
         {
             switch (log.Level)
             {
                 case LogLevel.Trace:
-                    summary.TraceCount++;
+                    summaryDto.TraceCount++;
                     break;
                 case LogLevel.Debug:
-                    summary.DebugCount++;
+                    summaryDto.DebugCount++;
                     break;
                 case LogLevel.Information:
-                    summary.InformationCount++;
+                    summaryDto.InformationCount++;
                     break;
                 case LogLevel.Warning:
-                    summary.WarningCount++;
+                    summaryDto.WarningCount++;
                     break;
                 case LogLevel.Error:
-                    summary.ErrorCount++;
+                    summaryDto.ErrorCount++;
                     break;
                 case LogLevel.Critical:
-                    summary.CriticalCount++;
+                    summaryDto.CriticalCount++;
                     break;
                 case LogLevel.None:
-                    summary.NoneCount++;
+                    summaryDto.NoneCount++;
                     break;
                 default:
                     break;
             }
         }
-        private void CalculateLogListSummary(BucketSummary summary, LinkedList<LogRecordDto> logs)
+        private void CalculateLogListSummary(BucketSummaryDto summaryDto, LinkedList<LogRecordDto> logs)
         {
-            summary.CalculatedFromTimespan = logs.Last!.Value.Timestamp - logs.First!.Value.Timestamp;
+            summaryDto.CalculatedFromTimespan = logs.Last!.Value.Timestamp - logs.First!.Value.Timestamp;
         }
-        private async Task CalculateBucketSizeAsync(BucketSummary summary, string bucket)
+        private async Task CalculateBucketSizeAsync(BucketSummaryDto summaryDto, string bucket)
         {
-            summary.BucketSize = await logRepository.EstimateBucketSizeAsync(bucket);
+            summaryDto.BucketSize = await logRepository.EstimateBucketSizeAsync(bucket);
         }
     }
 }

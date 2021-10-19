@@ -9,7 +9,7 @@ namespace Luger.Features.Logging
     {
         Task WriteLogsAsync(string bucket, IEnumerable<LogRecordDto> logs);
         Task FlushAsync();
-        IAsyncEnumerable<LogRecordDto> ReadLogs(string bucket, DateTimeOffset start, DateTimeOffset end);
+        IAsyncEnumerable<LogRecordDto> ReadLogs(string bucket, DateTimeOffset start, DateTimeOffset end, CursorDto cursor);
         Task<long> EstimateBucketSizeAsync(string bucket);
     }
 }
