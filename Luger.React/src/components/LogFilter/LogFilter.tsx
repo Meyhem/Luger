@@ -94,8 +94,8 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
             levels: values.levels,
             from: values.from.toJSON(),
             to: values.to.toJSON(),
-            page: values.page || 0,
-            pageSize: values.pageSize || 50,
+            page: Number(values.page) || 0,
+            pageSize: Number(values.pageSize) || 50,
             message: values.message ?? '',
             labels: _.map(values.labels, l => ({ name: l.name, value: l.value })),
             autoreloadSeconds: values.autoreloadSeconds
@@ -124,8 +124,8 @@ export const LogFilter = ({ bucket }: LogFilterProps) => {
           levels: filter.levels || [],
           from: dayjs.utc(filter.from),
           to: dayjs.utc(filter.to),
-          page: filter.page || 0,
-          pageSize: filter.pageSize || 50,
+          page: Number(filter.page) || 0,
+          pageSize: Number(filter.pageSize) || 50,
           message: filter.message || '',
           labels: _.map(filter.labels, l => ({ ...l, id: _.uniqueId('labelId_') })),
           autoreloadSeconds: filter.autoreloadSeconds || 0

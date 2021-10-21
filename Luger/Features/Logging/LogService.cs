@@ -61,7 +61,7 @@ namespace Luger.Features.Logging
                 if (!isMatch) continue;
                 nlog++;
                 // skip desired count
-                if (nlog < toSkip) continue;
+                if (nlog <= toSkip) continue;
 
                 // take only desired amount
                 if (nlog - toSkip > pageSize) yield break;

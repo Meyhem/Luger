@@ -115,7 +115,10 @@ namespace Luger.Features.Logging.FileSystem
                     {
                         var hasNext = logStreamEnumerator.MoveNext();
                         if (!hasNext) break;
-                        cursor.Offset = fileStream.Position;
+                        // TODO: filestream position can't be used because parsing logic is prefetching too far ahead
+                        // Revisit this when moving away from Newtonsoft as System.Text might come with better
+                        // positioned JSON reader
+                        // cursor.Offset = fileStream.Position;
                     }
                     catch (Exception ex)
                     {
@@ -233,23 +236,22 @@ namespace Luger.Features.Logging.FileSystem
             
             while (jsonReader.Read())
             {
-                if (jsonReader.TokenType == JsonToken.StartObject)
+                if (jsonReader.TokenType != JsonToken.StartObject) continue;
+                
+                LogRecordDto? log = null;
+                try
                 {
-                    LogRecordDto? log = null;
-                    try
-                    {
-                        log = serializer.Deserialize<LogRecordDto>(jsonReader);
-                    }
-                    catch (Exception e)
-                    {
-                        logger.LogWarning("Corrupted log record on line {Line}. {Exception}",
-                            jsonReader.LinePosition,
-                            e);
-                        continue;
-                    }
-
-                    if (log is not null) yield return log;
+                    log = serializer.Deserialize<LogRecordDto>(jsonReader);
                 }
+                catch (Exception e)
+                {
+                    logger.LogWarning("Corrupted log record on line {Line}. {Exception}",
+                        jsonReader.LinePosition,
+                        e);
+                    continue;
+                }
+
+                if (log is not null) yield return log;
             }
         }
 

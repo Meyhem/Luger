@@ -12,7 +12,7 @@ export const bucketInitialState: BucketSearchState = {
     to: new Date().toJSON(),
     levels: [],
     page: 0,
-    pageSize: 20,
+    pageSize: 50,
     message: '',
     labels: [],
     autoreloadSeconds: 0
@@ -36,15 +36,15 @@ export const searchReducer: Reducer<SearchState, SearchActions> = (state = initi
       return setBucketState(state, action.payload.bucket, bucketInitialState)
     case getType(SearchActions.setFilter):
       const bucketFilter = state[action.payload.bucket].filter
-      // If only page has changed, the keep the cursor to be used for fast search
+      // If ONLY page has been incremented then keep cursor for fast search
       if (
-        bucketFilter.page !== action.payload.filter.page &&
+        bucketFilter?.page === action.payload.filter.page - 1 &&
         _.isEqual(_.omit(bucketFilter, 'page'), _.omit(action.payload.filter, 'page'))
       ) {
-        return setBucketState(state, action.payload.bucket, { filter: { ...action.payload.filter }, cursor: undefined })
+        return setBucketState(state, action.payload.bucket, { filter: { ...action.payload.filter } })
       }
 
-      return setBucketState(state, action.payload.bucket, { filter: { ...action.payload.filter } })
+      return setBucketState(state, action.payload.bucket, { filter: { ...action.payload.filter }, cursor: undefined })
     case getType(SearchActions.addLabelFilter):
       return setBucketState(state, action.payload.bucket, {
         filter: {
@@ -53,6 +53,9 @@ export const searchReducer: Reducer<SearchState, SearchActions> = (state = initi
         },
         cursor: undefined
       })
+
+    case getType(SearchActions.setCursor):
+      return setBucketState(state, action.payload.bucket, { cursor: action.payload.cursor })
     case getType(SearchActions.setLogs):
       return setBucketState(state, action.payload.bucket, {
         logs: action.payload.logs
